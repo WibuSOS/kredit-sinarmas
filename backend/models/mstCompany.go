@@ -1,7 +1,7 @@
 package models
 
 type MstCompanyTab struct {
-	ID               uint    `json:"id" gorm:"autoIncrement;unique;not null;type:bigint"`
+	ID               uint    `json:"id" gorm:"type:bigint"`
 	CompanyCode      string  `json:"company_code" gorm:"type:varchar(5)"`
 	CompanyShortName string  `json:"company_short_name" gorm:"type:varchar(50)"`
 	CompanyName      string  `json:"company_name" gorm:"type:varchar(200)"`

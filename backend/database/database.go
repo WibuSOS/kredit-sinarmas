@@ -121,7 +121,11 @@ func callDbDev() (*gorm.DB, error) {
 		return nil, errorDbConn(err)
 	}
 
+	db.Exec("DROP TABLE branch_tab")
+	db.Exec("DROP TABLE mst_company_tab")
+
 	log.Println("Call DB Dev success")
+
 	return db, nil
 }
 
