@@ -1,14 +1,9 @@
 package models
 
-import (
-	"time"
-
-	"gorm.io/gorm"
-)
+import "time"
 
 type CustomerDataTab struct {
-	gorm.Model
-	Custcode          string    `json:"custcode" gorm:"not null; type:varchar(25); unique"`
+	Custcode          string    `json:"custcode" gorm:"primaryKey;type:varchar(25)"`
 	PPK               string    `json:"ppk" gorm:"type:varchar(20)"`
 	Name              string    `json:"name" gorm:"type:varchar(100)"`
 	Address1          string    `json:"address1" gorm:"type:varchar(40)"`
@@ -17,7 +12,7 @@ type CustomerDataTab struct {
 	Zip               string    `json:"zip" gorm:"type:varchar(6)"`
 	BirthPlace        string    `json:"birth_place" gorm:"type:varchar(20)"`
 	BirthDate         time.Time `json:"birth_date" gorm:"type:timestamp"`
-	IdType            int8      `json:"id_type"`
+	IdType            uint8     `json:"id_type" gorm:"type:smallint"`
 	IdNumber          string    `json:"id_number" gorm:"type:varchar(30)"`
 	MobileNo          string    `json:"mobile_no" gorm:"type:varchar(20)"`
 	DrawdownDate      time.Time `json:"drawdown_date" gorm:"type:date"`
@@ -27,6 +22,6 @@ type CustomerDataTab struct {
 	ApprovalStatus    string    `json:"approval_status" gorm:"type:varchar(2)"`
 }
 
-func (m *CustomerDataTab) TableName() string {
+func (CustomerDataTab) TableName() string {
 	return "customer_data_tab"
 }
