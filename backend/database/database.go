@@ -124,6 +124,7 @@ func callDbDev() (*gorm.DB, error) {
 	db.Exec("DROP TABLE branch_tab")
 	db.Exec("DROP TABLE mst_company_tab")
 	db.Exec("DROP TABLE customer_data_tab")
+	db.Exec("DROP TABLE loan_data_tab")
 
 	log.Println("Call DB Dev success")
 
@@ -145,7 +146,7 @@ func checkDbConn(db *gorm.DB) (*gorm.DB, error) {
 }
 
 func migrateDb(db *gorm.DB) (*gorm.DB, error) {
-	if err := db.AutoMigrate(models.BranchTab{}, models.MstCompanyTab{}, models.CustomerDataTab{}); err != nil {
+	if err := db.AutoMigrate(models.BranchTab{}, models.MstCompanyTab{}, models.CustomerDataTab{}, models.LoanDataTab{}); err != nil {
 		return nil, errorDbConn(err)
 	}
 
