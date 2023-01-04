@@ -13,6 +13,6 @@ type StagingError struct {
 	ErrorDesc    string    `json:"error_desc" gorm:"type:varchar(3000)"`
 }
 
-func (m *StagingError) TableName() string {
+func (StagingError) TableName() string {
 	return "staging_error"
 }
