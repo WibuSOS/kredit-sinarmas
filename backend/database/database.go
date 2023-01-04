@@ -129,6 +129,7 @@ func callDbDev() (*gorm.DB, error) {
 	db.Exec("DROP TABLE vehicle_data_tab")
 	db.Exec("DROP TABLE staging_customer")
 	db.Exec("DROP TABLE staging_error")
+	db.Exec("SET lc_monetary = 'en-id'")
 
 	log.Println("Call DB Dev success")
 
@@ -165,6 +166,10 @@ func seedDb(db *gorm.DB) {
 	// 	{Nama: "Pembeli", Role: "consumer", NoHp: "+6281586173213", Email: "pembeli@custom.com", Password: string(pb), NoRek: "0987654321"},
 	// }
 	// seedTable(db, &models.Users{}, &newUsers)
+
+	db.Exec("COPY branch_tab FROM 'D:\\Project BootCamp\\branch_tab.csv' DELIMITER ';' NULL AS 'NULL' CSV HEADER")
+	db.Exec("COPY staging_customer FROM 'D:\\Project BootCamp\\staging_customer.csv' DELIMITER ';' NULL AS 'NULL' CSV HEADER")
+	db.Exec("COPY mst_company_tab FROM 'D:\\Project BootCamp\\mst_company_tab.csv' DELIMITER ';' NULL AS 'NULL' CSV HEADER")
 }
 
 func seedTable(db *gorm.DB, table any, newRecords any) {
