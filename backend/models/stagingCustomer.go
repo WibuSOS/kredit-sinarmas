@@ -3,12 +3,12 @@ package models
 import "time"
 
 type StagingCustomer struct {
-	ID                              int64     `json:"id" gorm:"not null; type:bigint"`
+	ID                              uint      `json:"id" gorm:"type:bigint"`
 	ScReff                          string    `json:"sc_reff" gorm:"type:varchar(80)"`
 	ScCreateDate                    time.Time `json:"sc_create_date" gorm:"type:timestamp"`
 	ScBranchCode                    string    `json:"sc_branch_code" gorm:"type:varchar(80)"`
 	ScCompany                       string    `json:"sc_company" gorm:"type:varchar(80)"`
-	ScFlag                          string    `json:"sc_flag" gorm:"type:char;size:1"`
+	ScFlag                          string    `json:"sc_flag" gorm:"type:char(1)"`
 	CustomerPpk                     string    `json:"customer_ppk" gorm:"type:varchar(80)"`
 	CustomerName                    string    `json:"customer_name" gorm:"type:varchar(80)"`
 	CustomerAddress1                string    `json:"customer_address1" gorm:"type:varchar(80)"`
@@ -17,8 +17,8 @@ type StagingCustomer struct {
 	CustomerZip                     string    `json:"customer_zip" gorm:"type:varchar(80)"`
 	CustomerBirthPlace              string    `json:"customer_birth_place" gorm:"type:varchar(80)"`
 	CustomerBirthDate               string    `json:"customer_birth_date" gorm:"type:varchar(80)"`
-	CustomerIDType                  string    `json:"customer_id_type" gorm:"type:varchar(80)"`
-	CustomerIDNumber                string    `json:"customer_id_number" gorm:"type:varchar(80)"`
+	CustomerIdType                  string    `json:"customer_id_type" gorm:"type:varchar(80)"`
+	CustomerIdNumber                string    `json:"customer_id_number" gorm:"type:varchar(80)"`
 	CustomerMobileNo                string    `json:"customer_mobile_no" gorm:"type:varchar(80)"`
 	CustomerMotherMaidenName        string    `json:"customer_mother_maiden_name" gorm:"type:varchar(80)"`
 	LoanOtr                         string    `json:"loan_otr" gorm:"type:varchar(80)"`
@@ -55,6 +55,6 @@ type StagingCustomer struct {
 	VehicleDealerID                 string    `json:"vehicle_dealer_id" gorm:"type:varchar(10)"`
 }
 
-func (m *StagingCustomer) TableName() string {
+func (StagingCustomer) TableName() string {
 	return "staging_customer"
 }
