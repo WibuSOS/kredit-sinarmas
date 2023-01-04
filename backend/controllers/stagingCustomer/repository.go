@@ -2,6 +2,7 @@ package stagingCustomer
 
 import (
 	"sinarmas/kredit-sinarmas/models"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -20,9 +21,15 @@ func NewRepository(db *gorm.DB) *repository {
 
 func (r *repository) ValidateAndMigrate() ([]models.StagingCustomer, error) {
 	var dirtyCustomerList []models.StagingCustomer
+	currentTime := time.Now()
 
 	err := r.db.
-		Find(&dirtyCustomerList, "sc_flag = '0' AND DATE_PART('year',sc_create_date) = 2023 AND DATE_PART('month',sc_create_date) = 1 AND DATE_PART('day',sc_create_date) = 4").
+		Find(&dirtyCustomerList,
+			"sc_flag = ? "+
+				"AND DATE_PART('year',sc_create_date) = ? "+
+				"AND DATE_PART('month',sc_create_date) = ? "+
+				"AND DATE_PART('day',sc_create_date) = ?",
+			"0", currentTime.Year(), currentTime.Month(), currentTime.Day()).
 		Error
 	if err != nil {
 		return []models.StagingCustomer{}, err
