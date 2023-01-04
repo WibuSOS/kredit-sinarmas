@@ -3,7 +3,7 @@ package models
 import "time"
 
 type LoanDataTab struct {
-	Custcode             string    `json:"custcode" gorm:"not null;type:varchar(25)"`
+	Custcode             string    `json:"custcode" gorm:"unique;not null;type:varchar(25)"`
 	Branch               string    `json:"branch" gorm:"type:varchar(50)"`
 	OTR                  float64   `json:"otr" gorm:"type:money"`
 	DownPayment          float64   `json:"down_payment" gorm:"type:money"`
