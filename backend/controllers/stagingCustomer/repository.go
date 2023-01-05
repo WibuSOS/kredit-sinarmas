@@ -2,6 +2,7 @@ package stagingCustomer
 
 import (
 	"errors"
+	"log"
 	"sinarmas/kredit-sinarmas/models"
 	"strings"
 	"time"
@@ -33,23 +34,52 @@ func (r *repository) ValidateAndMigrate() ([]models.StagingCustomer, error) {
 				"AND DATE_PART('day',sc_create_date) = ?",
 			"0", currentTime.Year(), currentTime.Month(), currentTime.Day()).
 		Error
+
 	if err != nil {
 		return []models.StagingCustomer{}, err
 	}
+
+	validate(r.db, dirtyCustomerList)
 
 	return dirtyCustomerList, nil
 }
 
 func validate(db *gorm.DB, dirtyCustomerList []models.StagingCustomer) {
 	for i, customer := range dirtyCustomerList {
-		if err := db.Take(&models.CustomerDataTab{}, "ppk = ?", strings.ToLower(strings.TrimSpace(customer.CustomerPpk))).Error; err == nil {
+		customerDataTest := models.CustomerDataTab{}
+		if err := db.Take(&customerDataTest, "ppk = ?", strings.TrimSpace(customer.CustomerPpk)).Error; err == nil {
 			dirtyCustomerList[i].ScFlag = "8"
-			continue
+			log.Println("ppk")
+			log.Println("ID:", customer.ID, "staging:", customer.CustomerPpk, "customer:", customerDataTest.PPK)
 		}
 
-		if err := db.Take(&models.MstCompanyTab{}, "company_short_name = ?", strings.ToLower(strings.TrimSpace(customer.ScCompany))).Error; err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
+		companyDataTest := models.MstCompanyTab{}
+		if err := db.Take(&companyDataTest, "company_short_name = ?", strings.TrimSpace(customer.ScCompany)).Error; err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
 			dirtyCustomerList[i].ScFlag = "8"
-			continue
+			log.Println("company")
+			log.Println("ID:", customer.ID, "staging:", customer.ScCompany, "company:", companyDataTest.CompanyShortName)
+		}
+
+		branchDataTest := models.BranchTab{}
+		if err := db.Take(&branchDataTest, "code = ?", strings.TrimSpace(customer.ScBranchCode)).Error; err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
+			dirtyCustomerList[i].ScFlag = "8"
+			log.Println("branch")
+			log.Println("ID:", customer.ID, "staging:", customer.ScBranchCode, "branch:", branchDataTest.Code)
+		}
+
+		currentTime := time.Now()
+		if tglPk, _ := time.Parse("2006-01-02", strings.TrimSpace(customer.LoanTglPk)); tglPk.Year() != currentTime.Year() || tglPk.Month() != currentTime.Month() {
+			dirtyCustomerList[i].ScFlag = "8"
+			log.Println("tgl_pk")
+			log.Println(
+				"ID:", customer.ID,
+				"staging:", customer.LoanTglPk,
+				"stagingYear:", tglPk.Year(),
+				"stagingMonth:", tglPk.Month(),
+				"currentTime:", currentTime.String(),
+				"currentTimeYear:", currentTime.Year(),
+				"currentTimeMonth:", currentTime.Month(),
+			)
 		}
 	}
 }
