@@ -1,7 +1,9 @@
 package stagingCustomer
 
 import (
+	"errors"
 	"sinarmas/kredit-sinarmas/models"
+	"strings"
 	"time"
 
 	"gorm.io/gorm"
@@ -36,4 +38,18 @@ func (r *repository) ValidateAndMigrate() ([]models.StagingCustomer, error) {
 	}
 
 	return dirtyCustomerList, nil
+}
+
+func validate(db *gorm.DB, dirtyCustomerList []models.StagingCustomer) {
+	for i, customer := range dirtyCustomerList {
+		if err := db.Take(&models.CustomerDataTab{}, "ppk = ?", strings.ToLower(strings.TrimSpace(customer.CustomerPpk))).Error; err == nil {
+			dirtyCustomerList[i].ScFlag = "8"
+			continue
+		}
+
+		if err := db.Take(&models.MstCompanyTab{}, "company_short_name = ?", strings.ToLower(strings.TrimSpace(customer.ScCompany))).Error; err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
+			dirtyCustomerList[i].ScFlag = "8"
+			continue
+		}
+	}
 }
