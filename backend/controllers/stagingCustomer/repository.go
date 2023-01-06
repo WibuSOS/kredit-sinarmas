@@ -87,5 +87,13 @@ func validate(db *gorm.DB, dirtyCustomerList []models.StagingCustomer) {
 			log.Println("customer_id")
 			log.Println("ID:", customer.ID, "id_type:", customer.CustomerIdType, "id_number:", customer.CustomerIdNumber)
 		}
+
+		// regex := regexp.MustCompile(`[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]+`)
+		// regex.MatchString(strings.TrimSpace(customer.CustomerName))
+		if matched := strings.ContainsAny(strings.TrimSpace(customer.CustomerName), `!@#$%^&*()_+-=[]{};':"\|,.<>/?~`); strings.TrimSpace(customer.CustomerName) == "" || matched {
+			dirtyCustomerList[i].ScFlag = "8"
+			log.Println("nama_debitur")
+			log.Println("ID:", customer.ID, "customer_name:", customer.CustomerName)
+		}
 	}
 }
