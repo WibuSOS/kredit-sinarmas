@@ -81,5 +81,11 @@ func validate(db *gorm.DB, dirtyCustomerList []models.StagingCustomer) {
 				"currentTimeMonth:", currentTime.Month(),
 			)
 		}
+
+		if strings.TrimSpace(customer.CustomerIdType) == "1" && strings.TrimSpace(customer.CustomerIdNumber) == "" {
+			dirtyCustomerList[i].ScFlag = "8"
+			log.Println("customer_id")
+			log.Println("ID:", customer.ID, "id_type:", customer.CustomerIdType, "id_number:", customer.CustomerIdNumber)
+		}
 	}
 }
