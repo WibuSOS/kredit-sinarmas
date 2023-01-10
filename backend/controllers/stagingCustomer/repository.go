@@ -108,15 +108,27 @@ func validate(db *gorm.DB, dirtyCustomerList []models.StagingCustomer) {
 			log.Println("ID:", customer.ID, "vehicle_stnk:", customer.VehicleStnk)
 		}
 
+		if strings.TrimSpace(customer.VehicleEngineNo) == "" {
+			dirtyCustomerList[i].ScFlag = "8"
+			log.Println("vehicle_engine_no")
+			log.Println("ID:", customer.ID, "staging_vehicle_engine_no:", customer.VehicleEngineNo)
+		}
+
 		vehicleEngineNoDataTest := models.VehicleDataTab{}
-		if err := db.Take(&vehicleEngineNoDataTest, "engine_no = ?", strings.TrimSpace(customer.VehicleEngineNo)).Error; strings.TrimSpace(customer.VehicleEngineNo) == "" || err == nil {
+		if err := db.Take(&vehicleEngineNoDataTest, "engine_no = ?", strings.TrimSpace(customer.VehicleEngineNo)).Error; err == nil {
 			dirtyCustomerList[i].ScFlag = "8"
 			log.Println("vehicle_engine_no")
 			log.Println("ID:", customer.ID, "staging_vehicle_engine_no:", customer.VehicleEngineNo, "vehicle_engine_no:", vehicleEngineNoDataTest.EngineNo)
 		}
 
+		if strings.TrimSpace(customer.VehicleChasisNo) == "" {
+			dirtyCustomerList[i].ScFlag = "8"
+			log.Println("vehicle_chasis_no")
+			log.Println("ID:", customer.ID, "staging_vehicle_chasis_no:", customer.VehicleChasisNo)
+		}
+
 		vehicleChasisNoDataTest := models.VehicleDataTab{}
-		if err := db.Take(&vehicleChasisNoDataTest, "chasis_no = ?", strings.TrimSpace(customer.VehicleChasisNo)).Error; strings.TrimSpace(customer.VehicleChasisNo) == "" || err == nil {
+		if err := db.Take(&vehicleChasisNoDataTest, "chasis_no = ?", strings.TrimSpace(customer.VehicleChasisNo)).Error; err == nil {
 			dirtyCustomerList[i].ScFlag = "8"
 			log.Println("vehicle_chasis_no")
 			log.Println("ID:", customer.ID, "staging_vehicle_chasis_no:", customer.VehicleChasisNo, "vehicle_chasis_no:", vehicleChasisNoDataTest.ChasisNo)
