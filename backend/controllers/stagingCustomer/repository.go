@@ -211,9 +211,78 @@ func validate(db *gorm.DB, dirtyCustomerList []models.StagingCustomer) map[int]s
 
 func insert(db *gorm.DB, dirtyCustomerList []models.StagingCustomer, errDescs map[int]string) {
 	log.Println("INSERT")
-	for i, customer := range dirtyCustomerList {
-		log.Println("ID:", customer.ID)
-		log.Println("ScFlag:", customer.ScFlag)
+	cleanCustomers := []models.CustomerDataTab{}
+	cleanLoans := []models.LoanDataTab{}
+	cleanVehicles := []models.VehicleDataTab{}
+	cleanErrors := []models.StagingError{}
+	currentTime := time.Now()
+
+	for i, dirtyCustomer := range dirtyCustomerList {
+		log.Println("ID:", dirtyCustomer.ID)
+		log.Println("ScFlag:", dirtyCustomer.ScFlag)
 		log.Println("errDesc:", errDescs[i])
+
+		if dirtyCustomer.ScFlag == "8" {
+			cleanErrors = append(cleanErrors, createStagingError(dirtyCustomer, currentTime, errDescs[i]))
+			continue
+		}
+
+		cleanCustomers = append(cleanCustomers, createCustomerData(dirtyCustomer, currentTime))
+		cleanLoans = append(cleanLoans, createLoanData(dirtyCustomer, currentTime))
+		cleanVehicles = append(cleanVehicles, createVehicleData(dirtyCustomer, currentTime))
 	}
+
+	err := db.Transaction(func(tx *gorm.DB) error {
+		// do some database operations in the transaction (use 'tx' from this point, not 'db')
+		if err := tx.Create(&cleanErrors).Error; err != nil {
+			return err
+		}
+
+		if err := tx.Create(&cleanCustomers).Error; err != nil {
+			return err
+		}
+
+		if err := tx.Create(&cleanLoans).Error; err != nil {
+			return err
+		}
+
+		if err := tx.Create(&cleanVehicles).Error; err != nil {
+			return err
+		}
+
+		if err := tx.Model(&dirtyCustomerList).Update("sc_flag", "lol").Error; err != nil {
+			return err
+		}
+
+		// return nil will commit the whole transaction
+		return nil
+	})
+
+	if err != nil {
+		log.Println(err.Error())
+	}
+}
+
+func createCustomerData(dirtyCustomer models.StagingCustomer, currentTime time.Time) models.CustomerDataTab {
+	customerData := models.CustomerDataTab{}
+
+	return customerData
+}
+
+func createLoanData(dirtyCustomer models.StagingCustomer, currentTime time.Time) models.LoanDataTab {
+	loanData := models.LoanDataTab{}
+
+	return loanData
+}
+
+func createVehicleData(dirtyCustomer models.StagingCustomer, currentTime time.Time) models.VehicleDataTab {
+	vehicleData := models.VehicleDataTab{}
+
+	return vehicleData
+}
+
+func createStagingError(dirtyCustomer models.StagingCustomer, currentTime time.Time, errDesc string) models.StagingError {
+	stagingError := models.StagingError{}
+
+	return stagingError
 }
