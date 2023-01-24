@@ -2,8 +2,10 @@ package stagingCustomer
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"sinarmas/kredit-sinarmas/models"
+	"strconv"
 	"strings"
 	"time"
 
@@ -87,7 +89,7 @@ func validate(db *gorm.DB, dirtyCustomerList []models.StagingCustomer) map[int]s
 		}
 
 		currentTime := time.Now()
-		if tglPk, _ := time.Parse("2006-01-02", strings.TrimSpace(customer.LoanTglPk)); tglPk.Year() != currentTime.Year() || tglPk.Month() != currentTime.Month() {
+		if tglPk, err := time.Parse("2006-01-02", strings.TrimSpace(customer.LoanTglPk)); err != nil || tglPk.Year() != currentTime.Year() || tglPk.Month() != currentTime.Month() {
 			dirtyCustomerList[i].ScFlag = "8"
 			if _, exists := errDescs[i]; exists {
 				errDescs[i] = errDescs[i] + ",tanggal PK harus sama dengan tahun dan bulan sekarang"
@@ -227,9 +229,10 @@ func insert(db *gorm.DB, dirtyCustomerList []models.StagingCustomer, errDescs ma
 			continue
 		}
 
-		cleanCustomers = append(cleanCustomers, createCustomerData(dirtyCustomer, currentTime))
-		cleanLoans = append(cleanLoans, createLoanData(dirtyCustomer, currentTime))
-		cleanVehicles = append(cleanVehicles, createVehicleData(dirtyCustomer, currentTime))
+		newCustCode := generateCustCode(db, dirtyCustomer, currentTime)
+		cleanCustomers = append(cleanCustomers, createCustomerData(dirtyCustomer, currentTime, newCustCode))
+		cleanLoans = append(cleanLoans, createLoanData(dirtyCustomer, currentTime, newCustCode))
+		cleanVehicles = append(cleanVehicles, createVehicleData(dirtyCustomer, currentTime, newCustCode))
 	}
 
 	err := db.Transaction(func(tx *gorm.DB) error {
@@ -263,19 +266,164 @@ func insert(db *gorm.DB, dirtyCustomerList []models.StagingCustomer, errDescs ma
 	}
 }
 
-func createCustomerData(dirtyCustomer models.StagingCustomer, currentTime time.Time) models.CustomerDataTab {
-	customerData := models.CustomerDataTab{}
+func generateCustCode(db *gorm.DB, dirtyCustomer models.StagingCustomer, currentTime time.Time) string {
+	// lastCustCodeTab := models.IdGeneratorTab{}
+	// newCustCodeTab := models.IdGeneratorTab{}
+	custCodeTab := models.IdGeneratorTab{}
+	mstCompany := models.MstCompanyTab{}
+	const appCustCode = "006"
+
+	db.Take(&mstCompany, "company_short_name = ?", strings.TrimSpace(dirtyCustomer.ScCompany))
+	companyCode := strings.TrimSpace(mstCompany.CompanyCode)
+
+	if err := db.Last(&custCodeTab, "code = ?", appCustCode).Error; err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
+		log.Println("last cust code record not found. Initializing from 1...")
+		custCodeTab.Code = appCustCode
+		custCodeTab.Value = 1
+		custCodeTab.Digit = uint(len(fmt.Sprintf("%d", 1)))
+		db.Create(&custCodeTab)
+	}
+	appCustCodeSeqNew := "0000000000" + fmt.Sprintf("%d", custCodeTab.Value)
+
+	month := int(currentTime.Month())
+	monthString := ""
+	year := currentTime.Year()
+	yearString := fmt.Sprintf("%d", year)
+	if month < 10 {
+		monthString = fmt.Sprintf("0%d", month)
+	} else {
+		monthString = fmt.Sprintf("%d", month)
+	}
+
+	newCustCode := appCustCode + companyCode + yearString + monthString + appCustCodeSeqNew
+	custCodeTab.Value += 1
+	custCodeTab.Digit = uint(len(fmt.Sprintf("%d", custCodeTab.Value)))
+	db.Select("Value", "Digit").Updates(&custCodeTab)
+
+	return newCustCode
+}
+
+func createCustomerData(dirtyCustomer models.StagingCustomer, currentTime time.Time, custCode string) models.CustomerDataTab {
+	birthDate, err := time.Parse("2006-01-02 15:04:05", strings.TrimSpace(dirtyCustomer.CustomerBirthDate))
+	if err != nil {
+		log.Println(err.Error())
+	}
+	idType, err := strconv.ParseUint(strings.TrimSpace(dirtyCustomer.CustomerIdType), 10, 8)
+	if err != nil {
+		log.Println(err.Error())
+	}
+	drawdownDate, err := time.Parse("2006-01-02", strings.TrimSpace(dirtyCustomer.LoanTglPk))
+	if err != nil {
+		log.Println(err.Error())
+	}
+	tglPkChanneling, err := time.Parse("2006-01-02", strings.TrimSpace(dirtyCustomer.LoanTglPkChanneling))
+	if err != nil {
+		log.Println(err.Error())
+	}
+
+	customerData := models.CustomerDataTab{
+		Custcode:          strings.TrimSpace(custCode),
+		PPK:               strings.TrimSpace(dirtyCustomer.CustomerPpk),
+		Name:              strings.TrimSpace(dirtyCustomer.CustomerName),
+		Address1:          strings.TrimSpace(dirtyCustomer.CustomerAddress1),
+		Address2:          strings.TrimSpace(dirtyCustomer.CustomerAddress2),
+		City:              strings.TrimSpace(dirtyCustomer.CustomerCity),
+		Zip:               strings.TrimSpace(dirtyCustomer.CustomerZip),
+		BirthPlace:        strings.TrimSpace(dirtyCustomer.CustomerBirthPlace),
+		BirthDate:         birthDate,
+		IdType:            uint8(idType),
+		IdNumber:          strings.TrimSpace(dirtyCustomer.CustomerIdNumber),
+		MobileNo:          strings.TrimSpace(dirtyCustomer.CustomerMobileNo),
+		DrawdownDate:      drawdownDate,
+		TglPkChanneling:   tglPkChanneling,
+		MotherMaidenName:  strings.TrimSpace(dirtyCustomer.CustomerMotherMaidenName),
+		ChannelingCompany: strings.TrimSpace(dirtyCustomer.ScCompany),
+		ApprovalStatus:    "9",
+	}
 
 	return customerData
 }
 
-func createLoanData(dirtyCustomer models.StagingCustomer, currentTime time.Time) models.LoanDataTab {
-	loanData := models.LoanDataTab{}
+func createLoanData(dirtyCustomer models.StagingCustomer, currentTime time.Time, custCode string) models.LoanDataTab {
+	otr, err := strconv.ParseFloat(dirtyCustomer.LoanOtr, 32)
+	if err != nil {
+		log.Println(err.Error())
+	}
+	downPayment, err := strconv.ParseFloat(dirtyCustomer.LoanDownPayment, 64)
+	if err != nil {
+		log.Println(err.Error())
+	}
+	loanLoanAmountChanneling, err := strconv.ParseFloat(dirtyCustomer.LoanLoanAmountChanneling, 64)
+	if err != nil {
+		log.Println(err.Error())
+	}
+	interestFlat, err := strconv.ParseFloat(dirtyCustomer.LoanInterestFlatChanneling, 32)
+	if err != nil {
+		log.Println(err.Error())
+	}
+	interestEffective, err := strconv.ParseFloat(dirtyCustomer.LoanInterestEffectiveChanneling, 32)
+	if err != nil {
+		log.Println(err.Error())
+	}
+	effectivePaymentType, err := strconv.ParseInt(dirtyCustomer.LoanEffectivePaymentType, 10, 8)
+	if err != nil {
+		log.Println(err.Error())
+	}
+	loanMonthlyPaymentChanneling, err := strconv.ParseFloat(dirtyCustomer.LoanMonthlyPaymentChanneling, 64)
+	if err != nil {
+		log.Println(err.Error())
+	}
+	// VehicleType, err := strconv.ParseInt(item.VehicleType, 10, 8)
+	// if err != nil {
+	// 	fmt.Println(err)
+	// }
+	// Status, err := strconv.ParseInt(item.VehicleStatus, 10, 8)
+	// if err != nil {
+	// 	fmt.Println(err)
+	// }
+	// VehicleDealerID, err := strconv.ParseInt(item.VehicleDealerID, 10, 8)
+	// if err != nil {
+	// 	fmt.Println(err)
+	// }
+	// VehicleTglStnk, err := time.Parse("2006-01-02 15:04:05", item.VehicleTglStnk)
+	// if err != nil {
+	// 	fmt.Println(err)
+	// }
+	// VehicleTglBpkb, err := time.Parse("2006-01-02 15:04:05", item.VehicleTglStnk)
+	// if err != nil {
+	// 	fmt.Println(err)
+	// }
+	// CollateralTypeID, err := strconv.ParseInt(item.CollateralTypeID, 10, 8)
+	// if err != nil {
+	// 	fmt.Println(err)
+	// }
+
+	loanData := models.LoanDataTab{
+		Custcode:             strings.TrimSpace(custCode),
+		Branch:               strings.TrimSpace(dirtyCustomer.ScBranchCode),
+		OTR:                  otr,
+		DownPayment:          downPayment,
+		LoanAmount:           loanLoanAmountChanneling,
+		LoanPeriod:           strings.TrimSpace(dirtyCustomer.LoanLoanPeriodChanneling),
+		InterestType:         1,
+		InterestFlat:         float32(interestFlat),
+		InterestEffective:    float32(interestEffective),
+		EffectivePaymentType: uint8(effectivePaymentType),
+		AdminFee:             30,
+		MonthlyPayment:       loanMonthlyPaymentChanneling,
+		// InputDate:            inputDate,
+		// LastModified:         time.Now(),
+		// ModifiedBy:           "system",
+		// InputDate2:           InputDate2,
+		// InputBy:              "system",
+		// LastModified2:        time.Now(),
+		// ModifiedBy2:          "system",
+	}
 
 	return loanData
 }
 
-func createVehicleData(dirtyCustomer models.StagingCustomer, currentTime time.Time) models.VehicleDataTab {
+func createVehicleData(dirtyCustomer models.StagingCustomer, currentTime time.Time, custCode string) models.VehicleDataTab {
 	vehicleData := models.VehicleDataTab{}
 
 	return vehicleData
