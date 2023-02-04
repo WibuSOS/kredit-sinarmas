@@ -345,42 +345,69 @@ func createCustomerData(dirtyCustomer models.StagingCustomer, currentTime time.T
 }
 
 func createLoanData(dirtyCustomer models.StagingCustomer, currentTime time.Time, custCode string) models.LoanDataTab {
-	otr, err := strconv.ParseFloat(dirtyCustomer.LoanOtr, 32)
+	otr, err := strconv.ParseFloat(strings.TrimSpace(dirtyCustomer.LoanOtr), 32)
 	if err != nil {
 		log.Println(err.Error())
 	}
-	downPayment, err := strconv.ParseFloat(dirtyCustomer.LoanDownPayment, 64)
+	downPayment, err := strconv.ParseFloat(strings.TrimSpace(dirtyCustomer.LoanDownPayment), 64)
 	if err != nil {
 		log.Println(err.Error())
 	}
-	loanLoanAmountChanneling, err := strconv.ParseFloat(dirtyCustomer.LoanLoanAmountChanneling, 64)
+	loanLoanAmountChanneling, err := strconv.ParseFloat(strings.TrimSpace(dirtyCustomer.LoanLoanAmountChanneling), 64)
 	if err != nil {
 		log.Println(err.Error())
 	}
-	interestFlat, err := strconv.ParseFloat(dirtyCustomer.LoanInterestFlatChanneling, 32)
+	interestFlat, err := strconv.ParseFloat(strings.TrimSpace(dirtyCustomer.LoanInterestFlatChanneling), 32)
 	if err != nil {
 		log.Println(err.Error())
 	}
-	interestEffective, err := strconv.ParseFloat(dirtyCustomer.LoanInterestEffectiveChanneling, 32)
+	interestEffective, err := strconv.ParseFloat(strings.TrimSpace(dirtyCustomer.LoanInterestEffectiveChanneling), 32)
 	if err != nil {
 		log.Println(err.Error())
 	}
-	effectivePaymentType, err := strconv.ParseInt(dirtyCustomer.LoanEffectivePaymentType, 10, 8)
+	effectivePaymentType, err := strconv.ParseInt(strings.TrimSpace(dirtyCustomer.LoanEffectivePaymentType), 10, 8)
 	if err != nil {
 		log.Println(err.Error())
 	}
-	loanMonthlyPaymentChanneling, err := strconv.ParseFloat(dirtyCustomer.LoanMonthlyPaymentChanneling, 64)
+	loanMonthlyPaymentChanneling, err := strconv.ParseFloat(strings.TrimSpace(dirtyCustomer.LoanMonthlyPaymentChanneling), 64)
 	if err != nil {
 		log.Println(err.Error())
 	}
-	// VehicleType, err := strconv.ParseInt(item.VehicleType, 10, 8)
-	// if err != nil {
-	// 	fmt.Println(err)
-	// }
-	// Status, err := strconv.ParseInt(item.VehicleStatus, 10, 8)
-	// if err != nil {
-	// 	fmt.Println(err)
-	// }
+
+	loanData := models.LoanDataTab{
+		Custcode:             strings.TrimSpace(custCode),
+		Branch:               strings.TrimSpace(dirtyCustomer.ScBranchCode),
+		OTR:                  otr,
+		DownPayment:          downPayment,
+		LoanAmount:           loanLoanAmountChanneling,
+		LoanPeriod:           strings.TrimSpace(dirtyCustomer.LoanLoanPeriodChanneling),
+		InterestType:         1,
+		InterestFlat:         float32(interestFlat),
+		InterestEffective:    float32(interestEffective),
+		EffectivePaymentType: uint8(effectivePaymentType),
+		AdminFee:             30,
+		MonthlyPayment:       loanMonthlyPaymentChanneling,
+		InputDate:            dirtyCustomer.ScCreateDate,
+		LastModified:         currentTime,
+		ModifiedBy:           "system",
+		Inputdate:            dirtyCustomer.ScCreateDate,
+		InputBy:              "system",
+		Lastmodified:         currentTime,
+		Modifiedby:           "system",
+	}
+
+	return loanData
+}
+
+func createVehicleData(dirtyCustomer models.StagingCustomer, currentTime time.Time, custCode string) models.VehicleDataTab {
+	vehicleType, err := strconv.ParseUint(strings.TrimSpace(dirtyCustomer.VehicleType), 10, 8)
+	if err != nil {
+		log.Println(err.Error())
+	}
+	vehicleStatus, err := strconv.ParseUint(strings.TrimSpace(dirtyCustomer.VehicleStatus), 10, 8)
+	if err != nil {
+		log.Println(err.Error())
+	}
 	// VehicleDealerID, err := strconv.ParseInt(item.VehicleDealerID, 10, 8)
 	// if err != nil {
 	// 	fmt.Println(err)
@@ -398,33 +425,41 @@ func createLoanData(dirtyCustomer models.StagingCustomer, currentTime time.Time,
 	// 	fmt.Println(err)
 	// }
 
-	loanData := models.LoanDataTab{
-		Custcode:             strings.TrimSpace(custCode),
-		Branch:               strings.TrimSpace(dirtyCustomer.ScBranchCode),
-		OTR:                  otr,
-		DownPayment:          downPayment,
-		LoanAmount:           loanLoanAmountChanneling,
-		LoanPeriod:           strings.TrimSpace(dirtyCustomer.LoanLoanPeriodChanneling),
-		InterestType:         1,
-		InterestFlat:         float32(interestFlat),
-		InterestEffective:    float32(interestEffective),
-		EffectivePaymentType: uint8(effectivePaymentType),
-		AdminFee:             30,
-		MonthlyPayment:       loanMonthlyPaymentChanneling,
-		// InputDate:            inputDate,
-		// LastModified:         time.Now(),
-		// ModifiedBy:           "system",
-		// InputDate2:           InputDate2,
-		// InputBy:              "system",
-		// LastModified2:        time.Now(),
-		// ModifiedBy2:          "system",
+	vehicleData := models.VehicleDataTab{
+		Custcode: strings.TrimSpace(custCode),
+		Brand:    uint(vehicleType),
+		Type:     strings.TrimSpace(dirtyCustomer.VehicleBrand),
+		Year:     strings.TrimSpace(dirtyCustomer.VehicleYear),
+		Golongan: 1,
+		Jenis:    strings.TrimSpace(dirtyCustomer.VehicleJenis),
+		Status:   uint8(vehicleStatus),
+		Color:    strings.TrimSpace(dirtyCustomer.VehicleColor),
+		// PoliceNo:       PoliceNo,
+		// EngineNo:       EngineNo,
+		// ChasisNo:       ChasisNo,
+		// Bpkb:           Bpkb,
+		// RegisterNo:     RegisterNo,
+		// Stnk:           Stnk,
+		// StnkAddress1:   StnkAddress1,
+		// StnkAddress2:   StnkAddress2,
+		// StnkCity:       StnkCity,
+		// DealerID:       DealerID,
+		// Inputdate:      InputDate,
+		// Inputby:        Inputby,
+		// Lastmodified:   LastModified,
+		// Modifiedby:     Modifiedby,
+		// TglStnk:        TglStnk,
+		// TglBpkb:        TglBpkb,
+		// TglPolis:       TglPolis,
+		// PolisNo:        PolisNo,
+		// CollateralID:   CollateralID,
+		// Ketagunan:      Ketagunan,
+		// AgunanLbu:      AgunanLbu,
+		// Dealer:         Dealer,
+		// AddressDealer1: AddressDealer1,
+		// AddressDealer2: AddressDealer2,
+		// CityDealer:     CityDealer,
 	}
-
-	return loanData
-}
-
-func createVehicleData(dirtyCustomer models.StagingCustomer, currentTime time.Time, custCode string) models.VehicleDataTab {
-	vehicleData := models.VehicleDataTab{}
 
 	return vehicleData
 }
