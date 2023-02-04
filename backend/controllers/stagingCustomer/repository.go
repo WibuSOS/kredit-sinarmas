@@ -408,10 +408,10 @@ func createVehicleData(dirtyCustomer models.StagingCustomer, currentTime time.Ti
 	if err != nil {
 		log.Println(err.Error())
 	}
-	// VehicleDealerID, err := strconv.ParseInt(item.VehicleDealerID, 10, 8)
-	// if err != nil {
-	// 	fmt.Println(err)
-	// }
+	vehicleDealerID, err := strconv.ParseUint(strings.TrimSpace(dirtyCustomer.VehicleDealerID), 10, 8)
+	if err != nil {
+		log.Println(err.Error())
+	}
 	// VehicleTglStnk, err := time.Parse("2006-01-02 15:04:05", item.VehicleTglStnk)
 	// if err != nil {
 	// 	fmt.Println(err)
@@ -426,24 +426,24 @@ func createVehicleData(dirtyCustomer models.StagingCustomer, currentTime time.Ti
 	// }
 
 	vehicleData := models.VehicleDataTab{
-		Custcode: strings.TrimSpace(custCode),
-		Brand:    uint(vehicleType),
-		Type:     strings.TrimSpace(dirtyCustomer.VehicleBrand),
-		Year:     strings.TrimSpace(dirtyCustomer.VehicleYear),
-		Golongan: 1,
-		Jenis:    strings.TrimSpace(dirtyCustomer.VehicleJenis),
-		Status:   uint8(vehicleStatus),
-		Color:    strings.TrimSpace(dirtyCustomer.VehicleColor),
-		// PoliceNo:       PoliceNo,
-		// EngineNo:       EngineNo,
-		// ChasisNo:       ChasisNo,
-		// Bpkb:           Bpkb,
-		// RegisterNo:     RegisterNo,
-		// Stnk:           Stnk,
-		// StnkAddress1:   StnkAddress1,
-		// StnkAddress2:   StnkAddress2,
-		// StnkCity:       StnkCity,
-		// DealerID:       DealerID,
+		Custcode:     strings.TrimSpace(custCode),
+		Brand:        uint(vehicleType),
+		Type:         strings.TrimSpace(dirtyCustomer.VehicleBrand),
+		Year:         strings.TrimSpace(dirtyCustomer.VehicleYear),
+		Golongan:     1,
+		Jenis:        strings.TrimSpace(dirtyCustomer.VehicleJenis),
+		Status:       uint8(vehicleStatus),
+		Color:        strings.TrimSpace(dirtyCustomer.VehicleColor),
+		PoliceNo:     strings.TrimSpace(dirtyCustomer.VehiclePoliceNo),
+		EngineNo:     strings.TrimSpace(dirtyCustomer.VehicleEngineNo),
+		ChasisNo:     strings.TrimSpace(dirtyCustomer.VehicleChasisNo),
+		BPKB:         strings.TrimSpace(dirtyCustomer.VehicleBpkb),
+		RegisterNo:   "1",
+		STNK:         strings.TrimSpace(dirtyCustomer.VehicleStnk),
+		StnkAddress1: "",
+		StnkAddress2: "",
+		StnkCity:     "",
+		DealerID:     uint(vehicleDealerID),
 		// Inputdate:      InputDate,
 		// Inputby:        Inputby,
 		// Lastmodified:   LastModified,
