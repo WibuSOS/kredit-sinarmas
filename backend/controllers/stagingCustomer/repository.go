@@ -412,60 +412,68 @@ func createVehicleData(dirtyCustomer models.StagingCustomer, currentTime time.Ti
 	if err != nil {
 		log.Println(err.Error())
 	}
-	// VehicleTglStnk, err := time.Parse("2006-01-02 15:04:05", item.VehicleTglStnk)
-	// if err != nil {
-	// 	fmt.Println(err)
-	// }
-	// VehicleTglBpkb, err := time.Parse("2006-01-02 15:04:05", item.VehicleTglStnk)
-	// if err != nil {
-	// 	fmt.Println(err)
-	// }
-	// CollateralTypeID, err := strconv.ParseInt(item.CollateralTypeID, 10, 8)
-	// if err != nil {
-	// 	fmt.Println(err)
-	// }
+	vehicleTglStnk, err := time.Parse("2006-01-02 15:04:05", strings.TrimSpace(dirtyCustomer.VehicleTglStnk))
+	if err != nil {
+		log.Println(err.Error())
+	}
+	vehicleTglBpkb, err := time.Parse("2006-01-02 15:04:05", strings.TrimSpace(dirtyCustomer.VehicleTglBpkb))
+	if err != nil {
+		log.Println(err.Error())
+	}
+	collateralTypeID, err := strconv.ParseUint(strings.TrimSpace(dirtyCustomer.CollateralTypeID), 10, 8)
+	if err != nil {
+		log.Println(err.Error())
+	}
 
 	vehicleData := models.VehicleDataTab{
-		Custcode:     strings.TrimSpace(custCode),
-		Brand:        uint(vehicleType),
-		Type:         strings.TrimSpace(dirtyCustomer.VehicleBrand),
-		Year:         strings.TrimSpace(dirtyCustomer.VehicleYear),
-		Golongan:     1,
-		Jenis:        strings.TrimSpace(dirtyCustomer.VehicleJenis),
-		Status:       uint8(vehicleStatus),
-		Color:        strings.TrimSpace(dirtyCustomer.VehicleColor),
-		PoliceNo:     strings.TrimSpace(dirtyCustomer.VehiclePoliceNo),
-		EngineNo:     strings.TrimSpace(dirtyCustomer.VehicleEngineNo),
-		ChasisNo:     strings.TrimSpace(dirtyCustomer.VehicleChasisNo),
-		BPKB:         strings.TrimSpace(dirtyCustomer.VehicleBpkb),
-		RegisterNo:   "1",
-		STNK:         strings.TrimSpace(dirtyCustomer.VehicleStnk),
-		StnkAddress1: "",
-		StnkAddress2: "",
-		StnkCity:     "",
-		DealerID:     uint(vehicleDealerID),
-		// Inputdate:      InputDate,
-		// Inputby:        Inputby,
-		// Lastmodified:   LastModified,
-		// Modifiedby:     Modifiedby,
-		// TglStnk:        TglStnk,
-		// TglBpkb:        TglBpkb,
-		// TglPolis:       TglPolis,
-		// PolisNo:        PolisNo,
-		// CollateralID:   CollateralID,
-		// Ketagunan:      Ketagunan,
-		// AgunanLbu:      AgunanLbu,
-		// Dealer:         Dealer,
-		// AddressDealer1: AddressDealer1,
-		// AddressDealer2: AddressDealer2,
-		// CityDealer:     CityDealer,
+		Custcode:       strings.TrimSpace(custCode),
+		Brand:          uint(vehicleType),
+		Type:           strings.TrimSpace(dirtyCustomer.VehicleBrand),
+		Year:           strings.TrimSpace(dirtyCustomer.VehicleYear),
+		Golongan:       1,
+		Jenis:          strings.TrimSpace(dirtyCustomer.VehicleJenis),
+		Status:         uint8(vehicleStatus),
+		Color:          strings.TrimSpace(dirtyCustomer.VehicleColor),
+		PoliceNo:       strings.TrimSpace(dirtyCustomer.VehiclePoliceNo),
+		EngineNo:       strings.TrimSpace(dirtyCustomer.VehicleEngineNo),
+		ChasisNo:       strings.TrimSpace(dirtyCustomer.VehicleChasisNo),
+		BPKB:           strings.TrimSpace(dirtyCustomer.VehicleBpkb),
+		RegisterNo:     "1",
+		STNK:           strings.TrimSpace(dirtyCustomer.VehicleStnk),
+		StnkAddress1:   "",
+		StnkAddress2:   "",
+		StnkCity:       "",
+		DealerID:       uint(vehicleDealerID),
+		Inputdate:      currentTime,
+		Inputby:        "system",
+		Lastmodified:   currentTime,
+		Modifiedby:     "system",
+		TglStnk:        vehicleTglStnk,
+		TglBpkb:        vehicleTglBpkb,
+		TglPolis:       currentTime,
+		PolisNo:        strings.TrimSpace(dirtyCustomer.VehiclePoliceNo),
+		CollateralID:   collateralTypeID,
+		Ketagunan:      "",
+		AgunanLbu:      "",
+		Dealer:         strings.TrimSpace(dirtyCustomer.VehicleDealer),
+		AddressDealer1: strings.TrimSpace(dirtyCustomer.VehicleAddressDealer1),
+		AddressDealer2: strings.TrimSpace(dirtyCustomer.VehicleAddressDealer2),
+		CityDealer:     strings.TrimSpace(dirtyCustomer.VehicleCityDealer),
 	}
 
 	return vehicleData
 }
 
 func createStagingError(dirtyCustomer models.StagingCustomer, currentTime time.Time, errDesc string) models.StagingError {
-	stagingError := models.StagingError{}
+	stagingError := models.StagingError{
+		// SeReff:       SeReff,
+		// SeCreateDate: SeCreateDate,
+		// BranchCode:   BranchCode,
+		// Company:      Company,
+		// Ppk:          Ppk,
+		// Name:         Name,
+		// ErrorDesc:    Reason,
+	}
 
 	return stagingError
 }
