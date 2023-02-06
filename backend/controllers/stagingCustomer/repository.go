@@ -37,7 +37,7 @@ func (r *repository) ValidateAndMigrate() ([]models.StagingCustomer, error) {
 			"0", currentTime.Year(), currentTime.Month(), currentTime.Day()).
 		Error
 
-	if err != nil {
+	if err != nil || len(dirtyCustomerList) == 0 {
 		return []models.StagingCustomer{}, err
 	}
 
