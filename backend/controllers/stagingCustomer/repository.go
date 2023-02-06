@@ -253,8 +253,10 @@ func insert(db *gorm.DB, dirtyCustomerList []models.StagingCustomer, errDescs ma
 			return err
 		}
 
-		if err := tx.Model(&dirtyCustomerList).Update("sc_flag", "lol").Error; err != nil {
-			return err
+		for _, dirtyCustomer := range dirtyCustomerList {
+			if err := tx.Model(&dirtyCustomer).Select("ScFlag").Updates(&dirtyCustomer).Error; err != nil {
+				return err
+			}
 		}
 
 		// return nil will commit the whole transaction
