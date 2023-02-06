@@ -3,7 +3,7 @@ package models
 import "time"
 
 type StagingError struct {
-	Id           int64     `json:"id" gorm:"type:bigint ;not null"`
+	ID           uint      `json:"id" gorm:"type:bigint;not null"`
 	SeReff       string    `json:"se_reff" gorm:"type:varchar(50)"`
 	SeCreateDate time.Time `json:"se_create_date" gorm:"type:timestamp"`
 	BranchCode   string    `json:"branch_code" gorm:"type:varchar(50)"`

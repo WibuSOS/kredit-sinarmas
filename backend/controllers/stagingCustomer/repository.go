@@ -298,7 +298,7 @@ func generateCustCode(db *gorm.DB, dirtyCustomer models.StagingCustomer, current
 	newCustCode := appCustCode + companyCode + yearString + monthString + appCustCodeSeqNew
 	custCodeTab.Value += 1
 	custCodeTab.Digit = uint(len(fmt.Sprintf("%d", custCodeTab.Value)))
-	db.Select("Value", "Digit").Updates(&custCodeTab)
+	db.Model(&custCodeTab).Select("Value", "Digit").Updates(&custCodeTab)
 
 	return newCustCode
 }
@@ -466,13 +466,13 @@ func createVehicleData(dirtyCustomer models.StagingCustomer, currentTime time.Ti
 
 func createStagingError(dirtyCustomer models.StagingCustomer, currentTime time.Time, errDesc string) models.StagingError {
 	stagingError := models.StagingError{
-		// SeReff:       SeReff,
-		// SeCreateDate: SeCreateDate,
-		// BranchCode:   BranchCode,
-		// Company:      Company,
-		// Ppk:          Ppk,
-		// Name:         Name,
-		// ErrorDesc:    Reason,
+		SeReff:       strings.TrimSpace(dirtyCustomer.ScReff),
+		SeCreateDate: dirtyCustomer.ScCreateDate,
+		BranchCode:   strings.TrimSpace(dirtyCustomer.ScBranchCode),
+		Company:      strings.TrimSpace(dirtyCustomer.ScCompany),
+		Ppk:          strings.TrimSpace(dirtyCustomer.CustomerPpk),
+		Name:         strings.TrimSpace(dirtyCustomer.CustomerName),
+		ErrorDesc:    strings.TrimSpace(errDesc),
 	}
 
 	return stagingError
