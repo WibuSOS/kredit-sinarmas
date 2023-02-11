@@ -1,9 +1,14 @@
 package authentication
 
 import (
-	"github.com/gin-gonic/gin"
+	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"strings"
+
+	"github.com/dgrijalva/jwt-go"
+	"github.com/gin-gonic/gin"
 )
 
 type Handler struct {
@@ -40,4 +45,48 @@ func (h *Handler) Login(c *gin.Context) {
 		"message": "successful",
 		"data":    res,
 	})
+}
+
+func (h *Handler) IsAuthenticated(c *gin.Context) {
+	fullToken := c.GetHeader("Authorization")
+	trimmedToken := strings.TrimPrefix(fullToken, "Bearer ")
+	token, err := jwt.Parse(trimmedToken, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("Authentication: Can't verify token!")
+		}
+		return []byte(os.Getenv("JWT_SECRET")), nil
+	})
+
+	if err != nil {
+		log.Println(err.Error())
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"code":    http.StatusBadRequest,
+			"message": err.Error(),
+		})
+		return
+	}
+	log.Println("Authentication: Token verified!")
+
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok || !token.Valid {
+		log.Println("Authentication: Can't validate token!")
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"code":    http.StatusBadRequest,
+			"message": "Authentication: Can't validate token!",
+		})
+		return
+	}
+
+	if err := claims.Valid(); err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"code":    http.StatusBadRequest,
+			"message": "Authentication: Can't validate time based claims!",
+		})
+		return
+	}
+
+	c.Set("userID", claims["ID"])
+	c.Set("username", claims["Username"])
+	c.Set("name", claims["Name"])
+	c.Next()
 }
