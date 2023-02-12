@@ -2,7 +2,6 @@ package api
 
 import (
 	"sinarmas/kredit-sinarmas/controllers/authentication"
-	"sinarmas/kredit-sinarmas/controllers/stagingCustomer"
 
 	"github.com/gin-contrib/cors"
 )
@@ -18,12 +17,8 @@ func (s *server) SetupRouter() error {
 	authService := authentication.NewService(authRepo)
 	authHandler := authentication.NewHandler(authService)
 
-	scRepo := stagingCustomer.NewRepository(s.DB)
-	scService := stagingCustomer.NewService(scRepo)
-	scHandler := stagingCustomer.NewHandler(scService)
-
 	s.Router.POST("/login", authHandler.Login)
-	s.Router.GET("/", authHandler.IsAuthenticated, scHandler.ValidateAndMigrate)
+	s.Router.GET("/", authHandler.IsAuthenticated)
 
 	// langRoutes := s.Router.Group("/:lang")
 	// {
