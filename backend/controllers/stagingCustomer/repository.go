@@ -37,8 +37,11 @@ func (r *repository) ValidateAndMigrate() ([]models.StagingCustomer, error) {
 			"0", currentTime.Year(), currentTime.Month(), currentTime.Day()).
 		Error
 
-	if err != nil || len(dirtyCustomerList) == 0 {
+	if err != nil {
 		return []models.StagingCustomer{}, err
+	}
+	if len(dirtyCustomerList) == 0 {
+		return []models.StagingCustomer{}, fmt.Errorf("tidak ditemukan data")
 	}
 
 	errDescs := validate(r.db, dirtyCustomerList)
