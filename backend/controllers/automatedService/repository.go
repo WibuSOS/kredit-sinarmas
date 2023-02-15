@@ -1,9 +1,10 @@
-package stagingCustomer
+package automatedService
 
 import (
 	"errors"
 	"fmt"
 	"log"
+	"math"
 	"sinarmas/kredit-sinarmas/models"
 	"strconv"
 	"strings"
@@ -13,7 +14,8 @@ import (
 )
 
 type Repository interface {
-	ValidateAndMigrate() ([]models.StagingCustomer, error)
+	ValidateAndMigrate() error
+	GenerateSkalaAngsuran() error
 }
 
 type repository struct {
@@ -24,7 +26,7 @@ func NewRepository(db *gorm.DB) *repository {
 	return &repository{db}
 }
 
-func (r *repository) ValidateAndMigrate() ([]models.StagingCustomer, error) {
+func (r *repository) ValidateAndMigrate() error {
 	var dirtyCustomerList []models.StagingCustomer
 	currentTime := time.Now()
 
@@ -38,16 +40,18 @@ func (r *repository) ValidateAndMigrate() ([]models.StagingCustomer, error) {
 		Error
 
 	if err != nil {
-		return []models.StagingCustomer{}, err
+		return err
 	}
 	if len(dirtyCustomerList) == 0 {
-		return []models.StagingCustomer{}, fmt.Errorf("tidak ditemukan data")
+		return fmt.Errorf("tidak ditemukan data")
 	}
 
 	errDescs := validate(r.db, dirtyCustomerList)
-	insert(r.db, dirtyCustomerList, errDescs)
+	if err := insert(r.db, dirtyCustomerList, errDescs); err != nil {
+		return err
+	}
 
-	return dirtyCustomerList, nil
+	return nil
 }
 
 func validate(db *gorm.DB, dirtyCustomerList []models.StagingCustomer) map[int]string {
@@ -214,7 +218,7 @@ func validate(db *gorm.DB, dirtyCustomerList []models.StagingCustomer) map[int]s
 	return errDescs
 }
 
-func insert(db *gorm.DB, dirtyCustomerList []models.StagingCustomer, errDescs map[int]string) {
+func insert(db *gorm.DB, dirtyCustomerList []models.StagingCustomer, errDescs map[int]string) error {
 	log.Println("INSERT")
 	cleanCustomers := []models.CustomerDataTab{}
 	cleanLoans := []models.LoanDataTab{}
@@ -267,8 +271,10 @@ func insert(db *gorm.DB, dirtyCustomerList []models.StagingCustomer, errDescs ma
 	})
 
 	if err != nil {
-		log.Println(err.Error())
+		return err
 	}
+
+	return nil
 }
 
 func generateCustCode(db *gorm.DB, dirtyCustomer models.StagingCustomer, currentTime time.Time) string {
@@ -481,4 +487,105 @@ func createStagingError(dirtyCustomer models.StagingCustomer, currentTime time.T
 	}
 
 	return stagingError
+}
+
+func (r *repository) GenerateSkalaAngsuran() error {
+	log.Println("GET LOAN DATA")
+	loanData := []models.LoanDataTab{}
+	currentTime := time.Now()
+
+	err := r.db.
+		Select("loan_data_tab.*").
+		Joins("INNER JOIN customer_data_tab AS cdt ON loan_data_tab.custcode = cdt.custcode AND cdt.approval_status = ?", "0").
+		Find(&loanData).Error
+	if err != nil {
+		return err
+	}
+	if len(loanData) == 0 {
+		return fmt.Errorf("tidak ditemukan data")
+	}
+
+	log.Println("GENERATE SKALA ANGSURAN")
+	log.Println("Loan Data:", len(loanData))
+
+	for _, loanRecord := range loanData {
+		log.Printf("%+v", loanRecord)
+		skalaRentalData, err := createSkalaRental(&loanRecord, currentTime)
+		if err != nil {
+			log.Println(err.Error())
+			continue
+		}
+
+		err = r.db.Transaction(func(tx *gorm.DB) error {
+			// do some database operations in the transaction (use 'tx' from this point, not 'db')
+			if err := tx.Create(&skalaRentalData).Error; err != nil {
+				return err
+			}
+
+			if err := tx.Model(&models.CustomerDataTab{}).Where("custcode = ? AND approval_status = ?", strings.TrimSpace(loanRecord.Custcode), "0").Update("approval_status", "1").Error; err != nil {
+				return err
+			}
+
+			// return nil will commit the whole transaction
+			return nil
+		})
+
+		if err != nil {
+			log.Println(err.Error())
+		}
+	}
+
+	return nil
+}
+
+func createSkalaRental(loanRecord *models.LoanDataTab, currentTime time.Time) ([]models.SkalaRentalTab, error) {
+	loanPeriod, err := strconv.ParseInt(strings.TrimSpace(loanRecord.LoanPeriod), 10, 8)
+	if err != nil {
+		return []models.SkalaRentalTab{}, err
+	}
+	totalBalance := loanRecord.LoanAmount
+	effRate := loanRecord.InterestEffective
+	skalaRentalData := make([]models.SkalaRentalTab, loanPeriod+1)
+
+	for i := range skalaRentalData {
+		if i == 0 {
+			skalaRentalData[i].Custcode = strings.TrimSpace(loanRecord.Custcode)
+			skalaRentalData[i].Counter = uint8(i)
+			skalaRentalData[i].OsBalance = totalBalance
+			skalaRentalData[i].EndBalance = totalBalance
+			skalaRentalData[i].DueDate = currentTime
+			skalaRentalData[i].EffRate = effRate
+			skalaRentalData[i].Rental = loanRecord.MonthlyPayment
+			skalaRentalData[i].Principle = 0
+			skalaRentalData[i].Interest = 0
+			skalaRentalData[i].Inputdate = currentTime
+			continue
+		}
+
+		dueDate := currentTime.AddDate(0, i, 0)
+		if dueDate.Day() != currentTime.Day() {
+			dueDate = dueDate.AddDate(0, 0, -dueDate.Day())
+		}
+		interest := math.Floor(totalBalance * float64(effRate) * 30 / 36000)
+		principle := loanRecord.MonthlyPayment - interest
+		endBalance := totalBalance - principle
+
+		skalaRentalData[i].Custcode = strings.TrimSpace(loanRecord.Custcode)
+		skalaRentalData[i].Counter = uint8(i)
+		skalaRentalData[i].OsBalance = totalBalance
+		skalaRentalData[i].EndBalance = endBalance
+		skalaRentalData[i].DueDate = dueDate
+		skalaRentalData[i].EffRate = effRate
+		skalaRentalData[i].Rental = loanRecord.MonthlyPayment
+		skalaRentalData[i].Principle = principle
+		skalaRentalData[i].Interest = interest
+		skalaRentalData[i].Inputdate = currentTime
+		if endBalance < 0 {
+			skalaRentalData[i].EndBalance = 0
+			skalaRentalData[i].Interest = skalaRentalData[i].Interest + endBalance
+		}
+		totalBalance = endBalance
+	}
+
+	return skalaRentalData, nil
 }

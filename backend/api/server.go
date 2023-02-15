@@ -3,7 +3,7 @@ package api
 import (
 	"log"
 	"os"
-	"sinarmas/kredit-sinarmas/controllers/stagingCustomer"
+	"sinarmas/kredit-sinarmas/controllers/automatedService"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -44,11 +44,14 @@ func (s *server) RunServer() {
 func (s *server) RunJobs() error {
 	scheduler := gocron.NewScheduler(time.Local)
 
-	scRepo := stagingCustomer.NewRepository(s.DB)
-	scService := stagingCustomer.NewService(scRepo)
-	scHandler := stagingCustomer.NewHandler(scService)
+	asRepo := automatedService.NewRepository(s.DB)
+	var asService automatedService.Service = automatedService.NewService(asRepo)
 
-	if _, err := scheduler.Every(5).Minutes().Do(scHandler.ValidateAndMigrate); err != nil {
+	if _, err := scheduler.Every(30).Minutes().Do(asService.ValidateAndMigrate); err != nil {
+		return err
+	}
+
+	if _, err := scheduler.Every(15).Minutes().Do(asService.GenerateSkalaAngsuran); err != nil {
 		return err
 	}
 
