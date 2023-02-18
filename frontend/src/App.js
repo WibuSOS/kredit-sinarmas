@@ -1,6 +1,7 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import './App.css';
-import Header from './components/Header';
+// import Header from './components/Header';
+import Login from './components/login/Login';
 import UserContext, { useStore } from './Context';
 
 function MultiRouter() {
@@ -9,7 +10,7 @@ function MultiRouter() {
   if (!state.user?.token) {
     return (
       <Routes>
-        <Route path="/" element={console.log("tidak ada token")} exact />
+        <Route path="/" element={<Login />} exact />
       </Routes>
     )
   }
@@ -25,7 +26,7 @@ function App() {
   return (
     <UserContext>
       <BrowserRouter>
-        <Header />
+        {/* <Header /> */}
         <MultiRouter />
       </BrowserRouter>
     </UserContext>

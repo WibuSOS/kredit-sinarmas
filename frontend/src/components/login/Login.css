@@ -1,0 +1,53 @@
+.log-shadow {
+	/* box-shadow: 0px 25px 40px #00000033;  */
+	max-width: 500px;
+	max-height: 400px;
+}
+
+.login-container {
+	margin-top: 100px;
+}
+
+.img-shadow {
+	/* box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19); */
+	box-shadow: 0px 25px 40px #00000033;
+	border-radius: 30px;
+}
+
+.btn-input {
+	border-radius: 0px;
+}
+
+.btn-shadow {
+	height: 40px;
+	width: 100%;
+	padding: 0;
+}
+
+.btn-shadow:hover {
+	box-shadow: 0 8px 10px 0 rgba(0, 0, 0, 0.1), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
+.text-shadow {
+	/* text-shadow: 2px 2px; */
+	color: black;
+	text-shadow: 0px 25px 40px #00000033;
+}
+
+.login-body {
+	height: 100%;
+	width: 100%;
+	background-repeat: no-repeat;
+	background-color: #1f2555;
+	background-image: linear-gradient(-25deg, #125876 0%, #1f2555 30%);
+	background-attachment: fixed;
+	-webkit-tap-highlight-color: transparent;
+	position: fixed;
+	top: 0;
+	left: 0;
+}
+
+.a-regist {
+	text-decoration: none;
+	color: white;
+}
