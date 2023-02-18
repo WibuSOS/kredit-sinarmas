@@ -7,6 +7,7 @@ import (
 	"os"
 	"sinarmas/kredit-sinarmas/models"
 
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -129,6 +130,7 @@ func callDbDev() (*gorm.DB, error) {
 	db.Exec("DROP TABLE vehicle_data_tab")
 	db.Exec("DROP TABLE staging_customer")
 	db.Exec("DROP TABLE staging_error")
+	db.Exec("DROP TABLE users")
 	db.Exec("SET lc_monetary = 'en-id'")
 
 	log.Println("Call DB Dev success")
@@ -151,7 +153,7 @@ func checkDbConn(db *gorm.DB) (*gorm.DB, error) {
 }
 
 func migrateDb(db *gorm.DB) (*gorm.DB, error) {
-	if err := db.AutoMigrate(models.BranchTab{}, models.MstCompanyTab{}, models.CustomerDataTab{}, models.LoanDataTab{}, models.SkalaRentalTab{}, models.VehicleDataTab{}, models.StagingCustomer{}, models.StagingError{}); err != nil {
+	if err := db.AutoMigrate(models.BranchTab{}, models.MstCompanyTab{}, models.CustomerDataTab{}, models.LoanDataTab{}, models.SkalaRentalTab{}, models.VehicleDataTab{}, models.StagingCustomer{}, models.StagingError{}, models.User{}); err != nil {
 		return nil, errorDbConn(err)
 	}
 
@@ -160,12 +162,12 @@ func migrateDb(db *gorm.DB) (*gorm.DB, error) {
 }
 
 func seedDb(db *gorm.DB) {
-	// pb, _ := bcrypt.GenerateFromPassword([]byte("12345678"), 8)
-	// newUsers := []models.Users{
-	// 	{Nama: "Penjual", Role: "consumer", NoHp: "+6285775066878", Email: "penjual@custom.com", Password: string(pb), NoRek: "1234567890"},
-	// 	{Nama: "Pembeli", Role: "consumer", NoHp: "+6281586173213", Email: "pembeli@custom.com", Password: string(pb), NoRek: "0987654321"},
-	// }
-	// seedTable(db, &models.Users{}, &newUsers)
+	pb, _ := bcrypt.GenerateFromPassword([]byte("1234abc"), 8)
+	newUsers := []models.User{
+		{Username: "KevinSus123", Password: string(pb), Name: "Kevin"},
+		{Username: "MariaSus123", Password: string(pb), Name: "Maria"},
+	}
+	seedTable(db, &models.User{}, &newUsers)
 
 	db.Exec("COPY branch_tab FROM 'D:\\Project BootCamp\\branch_tab.csv' DELIMITER ';' NULL AS 'NULL' CSV HEADER")
 	db.Exec("COPY staging_customer FROM 'D:\\Project BootCamp\\staging_customer.csv' DELIMITER ';' NULL AS 'NULL' CSV HEADER")

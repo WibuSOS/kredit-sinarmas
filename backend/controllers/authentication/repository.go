@@ -1,10 +1,10 @@
 package authentication
 
 import (
-	"fmt"
 	"sinarmas/kredit-sinarmas/models"
 	"strings"
 
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
@@ -27,12 +27,12 @@ func (r *repository) Login(req DataRequest) (models.User, error) {
 		return models.User{}, err
 	}
 
-	// if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password)); err != nil {
-	// 	return models.User{}, err
-	// }
-	if user.Password != req.Password {
-		return models.User{}, fmt.Errorf("incorrect credentials")
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password)); err != nil {
+		return models.User{}, err
 	}
+	// if user.Password != req.Password {
+	// 	return models.User{}, fmt.Errorf("incorrect credentials")
+	// }
 
 	return user, nil
 }
