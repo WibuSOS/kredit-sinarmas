@@ -27,6 +27,7 @@ func NewRepository(db *gorm.DB) *repository {
 }
 
 func (r *repository) ValidateAndMigrate() error {
+	log.Println("GET STAGING CUSTOMER DATA")
 	var dirtyCustomerList []models.StagingCustomer
 	currentTime := time.Now()
 
