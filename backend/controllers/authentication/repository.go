@@ -23,7 +23,7 @@ func NewRepository(db *gorm.DB) *repository {
 func (r *repository) Login(req DataRequest) (models.User, error) {
 	var user models.User
 
-	if err := r.db.Take(&user, "username = ?", strings.ToLower(strings.TrimSpace(req.Username))).Error; err != nil {
+	if err := r.db.Take(&user, "username = ?", strings.TrimSpace(req.Username)).Error; err != nil {
 		return models.User{}, err
 	}
 

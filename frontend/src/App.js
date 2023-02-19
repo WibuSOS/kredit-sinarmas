@@ -8,27 +8,23 @@ function MultiRouter() {
   const { state } = useStore()
 
   if (!state.user?.token) {
-    return (
-      <Routes>
-        <Route path="/" element={<Login />} exact />
-      </Routes>
-    )
+    return <Login />
   }
 
   return (
-    <Routes>
-      <Route path="/" element={console.log("ada token")} exact />
-    </Routes>
+    <BrowserRouter>
+      {/* <Header /> */}
+      <Routes>
+        <Route path="/" element={console.log("ada token")} exact />
+      </Routes>
+    </BrowserRouter>
   )
 }
 
 function App() {
   return (
     <UserContext>
-      <BrowserRouter>
-        {/* <Header /> */}
-        <MultiRouter />
-      </BrowserRouter>
+      <MultiRouter />
     </UserContext>
   )
 }
