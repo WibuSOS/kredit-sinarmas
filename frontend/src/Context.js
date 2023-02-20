@@ -6,6 +6,7 @@ function userReducer(state, action) {
 			return { ...state, user: action.payload };
 		}
 		case 'delete': {
+			localStorage.clear();
 			return { ...state, user: null };
 		}
 		case 'setDefault': {
