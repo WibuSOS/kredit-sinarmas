@@ -5,6 +5,7 @@ import { useStore } from '../../Context';
 
 export default function Header() {
 	const { state, dispatch } = useStore();
+	const handleLogOut = () => dispatch({ type: 'delete' });
 
 	return (
 		<nav class="navbar navbar-expand-lg bg-light sticky-top">
@@ -28,9 +29,9 @@ export default function Header() {
 								{state.user.username}
 							</a>
 							<ul class="dropdown-menu">
-								<li><Link to="#" className="dropdown-item">Action</Link></li>
+								<li><Link to="#" className="dropdown-item">Change password</Link></li>
 								<li><hr class="dropdown-divider" /></li>
-								<li><Link to="#" className="dropdown-item" onClick={() => dispatch({ type: 'delete' })}>Log out</Link></li>
+								<li><Link to="#" className="dropdown-item" onClick={handleLogOut}>Log out</Link></li>
 							</ul>
 						</li>
 					</ul>
