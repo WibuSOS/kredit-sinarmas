@@ -1,5 +1,7 @@
+import { Container } from 'react-bootstrap';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import './App.css';
+import Home from './components/home/Home';
 import Login from './components/login/Login';
 import Header from './components/shared/Header';
 import Sidebar from './components/shared/Sidebar';
@@ -16,9 +18,11 @@ function MultiRouter() {
     <BrowserRouter>
       <Header />
       <Sidebar />
-      <Routes>
-        <Route path="/" element={console.log("ada token")} exact />
-      </Routes>
+      <Container as="main">
+        <Routes>
+          <Route path="/" element={<Home />} exact />
+        </Routes>
+      </Container>
     </BrowserRouter>
   )
 }
