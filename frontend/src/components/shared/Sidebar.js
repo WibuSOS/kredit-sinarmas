@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Button, Offcanvas } from "react-bootstrap";
+import { Link } from "react-router-dom";
 import { ICONS_DIR } from "../../const";
 import "./Sidebar.css";
 
@@ -17,11 +18,21 @@ export default function Sidebar() {
 
 			<Offcanvas show={show} onHide={handleClose}>
 				<Offcanvas.Header closeButton>
-					<Offcanvas.Title>Offcanvas</Offcanvas.Title>
+					<Offcanvas.Title>Main Menu</Offcanvas.Title>
 				</Offcanvas.Header>
 				<Offcanvas.Body>
-					Some text as placeholder. In real life you can have the elements you
-					have chosen. Like, text, images, lists, etc.
+					<Link to="/" className="sidebar-app-menu-body-link" onClick={handleClose}>
+						<div className="sidebar-app-menu-body-item">
+							Home
+						</div>
+					</Link>
+					<hr />
+					<Link to="/" className="sidebar-app-menu-body-link" onClick={handleClose}>
+						<div className="sidebar-app-menu-body-item">
+							Another Menu
+						</div>
+					</Link>
+					<hr />
 				</Offcanvas.Body>
 			</Offcanvas>
 		</div>

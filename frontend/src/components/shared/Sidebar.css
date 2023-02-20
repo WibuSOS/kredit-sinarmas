@@ -27,3 +27,24 @@
 	background-color: var(--bs-gray-200);
 	box-shadow: 5px 5px 10px #696969;
 }
+
+.sidebar-app-menu-body-link {
+	text-decoration: none;
+	color: black;
+}
+
+.sidebar-app-menu-body-link:hover {
+	color: black;
+}
+
+.sidebar-app-menu-body-item {
+	display: flex;
+	min-height: 6%;
+	width: 100%;
+	padding-left: 2%;
+	align-items: center;
+}
+
+.sidebar-app-menu-body-item:hover {
+	background-color: var(--bs-gray-200);
+}
