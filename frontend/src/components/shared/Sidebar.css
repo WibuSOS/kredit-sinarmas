@@ -1,0 +1,29 @@
+#sidebar-app>#sidebar-app-toggler {
+	position: fixed;
+	top: 40%;
+	writing-mode: vertical-rl;
+	text-orientation: upright;
+	text-align: center;
+	font-size: 18px;
+	font-weight: 600;
+	letter-spacing: -6px;
+	background-color: var(--bs-light);
+	border-top-right-radius: 10px;
+	border-bottom-right-radius: 10px;
+	padding-bottom: 8px;
+	margin-left: -4px;
+	height: 140px;
+	box-shadow: 5px 5px 10px #888888;
+	outline-style: solid;
+	outline-width: 1px;
+}
+
+#sidebar-app>#sidebar-app-toggler>#sidebar-app-toggler-icon {
+	margin-left: -18px;
+}
+
+#sidebar-app>#sidebar-app-toggler:hover {
+	cursor: pointer;
+	background-color: var(--bs-gray-200);
+	box-shadow: 5px 5px 10px #696969;
+}
