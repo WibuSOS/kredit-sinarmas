@@ -11,7 +11,7 @@ type DataRequest struct {
 }
 
 func (req DataRequest) Validation() error {
-	if strings.ToLower(strings.TrimSpace(req.Username)) == "" {
+	if strings.TrimSpace(req.Username) == "" {
 		return fmt.Errorf("invalid username")
 	}
 
