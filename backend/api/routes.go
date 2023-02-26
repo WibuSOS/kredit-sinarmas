@@ -2,6 +2,7 @@ package api
 
 import (
 	"sinarmas/kredit-sinarmas/controllers/authentication"
+	"sinarmas/kredit-sinarmas/controllers/kredit"
 
 	"github.com/gin-contrib/cors"
 )
@@ -13,18 +14,22 @@ func (s *server) SetupRouter() error {
 		AllowHeaders: []string{"Origin", "Accept", "Content-Type", "Authorization", "Access-Control-Allow-Origin"},
 	}))
 
+	// authentication
 	authRepo := authentication.NewRepository(s.DB)
 	authService := authentication.NewService(authRepo)
 	authHandler := authentication.NewHandler(authService)
 
-	s.Router.POST("/login", authHandler.Login)
-	s.Router.GET("/", authHandler.IsAuthenticated)
+	// kredit
+	kreditRepo := kredit.NewRepository(s.DB)
+	kreditService := kredit.NewService(kreditRepo)
+	kreditHandler := kredit.NewHandler(kreditService)
 
-	// langRoutes := s.Router.Group("/:lang")
-	// {
-	// 	// auth controller (login)
-	// 	langRoutes.POST("/login")
-	// }
+	s.Router.POST("/login", authHandler.Login)
+
+	kreditRoutes := s.Router.Group("/kredit", authHandler.IsAuthenticated)
+	{
+		kreditRoutes.GET("/checklist_pencairan", kreditHandler.GetChecklistPencairan)
+	}
 
 	return nil
 }
