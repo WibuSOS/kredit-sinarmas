@@ -245,19 +245,19 @@ func insert(db *gorm.DB, dirtyCustomerList []models.StagingCustomer, errDescs ma
 
 	err := db.Transaction(func(tx *gorm.DB) error {
 		// do some database operations in the transaction (use 'tx' from this point, not 'db')
-		if err := tx.Create(&cleanErrors).Error; err != nil {
+		if err := tx.Create(&cleanErrors).Error; err != nil && !errors.Is(err, gorm.ErrEmptySlice) {
 			return err
 		}
 
-		if err := tx.Create(&cleanCustomers).Error; err != nil {
+		if err := tx.Create(&cleanCustomers).Error; err != nil && !errors.Is(err, gorm.ErrEmptySlice) {
 			return err
 		}
 
-		if err := tx.Create(&cleanLoans).Error; err != nil {
+		if err := tx.Create(&cleanLoans).Error; err != nil && !errors.Is(err, gorm.ErrEmptySlice) {
 			return err
 		}
 
-		if err := tx.Create(&cleanVehicles).Error; err != nil {
+		if err := tx.Create(&cleanVehicles).Error; err != nil && !errors.Is(err, gorm.ErrEmptySlice) {
 			return err
 		}
 

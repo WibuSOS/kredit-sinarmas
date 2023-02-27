@@ -131,6 +131,7 @@ func callDbDev() (*gorm.DB, error) {
 	db.Exec("DROP TABLE staging_customer")
 	db.Exec("DROP TABLE staging_error")
 	db.Exec("DROP TABLE users")
+	db.Exec("DROP TABLE id_generator_tab")
 	db.Exec("SET lc_monetary = 'en-id'")
 
 	log.Println("Call DB Dev success")
@@ -153,7 +154,7 @@ func checkDbConn(db *gorm.DB) (*gorm.DB, error) {
 }
 
 func migrateDb(db *gorm.DB) (*gorm.DB, error) {
-	if err := db.AutoMigrate(models.BranchTab{}, models.MstCompanyTab{}, models.CustomerDataTab{}, models.LoanDataTab{}, models.SkalaRentalTab{}, models.VehicleDataTab{}, models.StagingCustomer{}, models.StagingError{}, models.User{}); err != nil {
+	if err := db.AutoMigrate(models.BranchTab{}, models.MstCompanyTab{}, models.CustomerDataTab{}, models.LoanDataTab{}, models.SkalaRentalTab{}, models.VehicleDataTab{}, models.StagingCustomer{}, models.StagingError{}, models.User{}, models.IdGeneratorTab{}); err != nil {
 		return nil, errorDbConn(err)
 	}
 
