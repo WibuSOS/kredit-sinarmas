@@ -246,23 +246,28 @@ func insert(db *gorm.DB, dirtyCustomerList []models.StagingCustomer, errDescs ma
 	err := db.Transaction(func(tx *gorm.DB) error {
 		// do some database operations in the transaction (use 'tx' from this point, not 'db')
 		if err := tx.Create(&cleanErrors).Error; err != nil && !errors.Is(err, gorm.ErrEmptySlice) {
+			log.Println("cleanErrors")
 			return err
 		}
 
 		if err := tx.Create(&cleanCustomers).Error; err != nil && !errors.Is(err, gorm.ErrEmptySlice) {
+			log.Println("cleanCustomers")
 			return err
 		}
 
 		if err := tx.Create(&cleanLoans).Error; err != nil && !errors.Is(err, gorm.ErrEmptySlice) {
+			log.Println("cleanLoans")
 			return err
 		}
 
 		if err := tx.Create(&cleanVehicles).Error; err != nil && !errors.Is(err, gorm.ErrEmptySlice) {
+			log.Println("cleanVehicles")
 			return err
 		}
 
 		for _, dirtyCustomer := range dirtyCustomerList {
 			if err := tx.Model(&dirtyCustomer).Select("ScFlag").Updates(&dirtyCustomer).Error; err != nil {
+				log.Println("update dirtyCustomer")
 				return err
 			}
 		}
@@ -322,6 +327,7 @@ func createCustomerData(dirtyCustomer models.StagingCustomer, currentTime time.T
 	}
 	idType, err := strconv.ParseUint(strings.TrimSpace(dirtyCustomer.CustomerIdType), 10, 8)
 	if err != nil {
+		log.Println("CustomerIdType")
 		log.Println(err.Error())
 	}
 	drawdownDate, err := time.Parse("2006-01-02", strings.TrimSpace(dirtyCustomer.LoanTglPk))
@@ -414,14 +420,17 @@ func createLoanData(dirtyCustomer models.StagingCustomer, currentTime time.Time,
 func createVehicleData(dirtyCustomer models.StagingCustomer, currentTime time.Time, custCode string) models.VehicleDataTab {
 	vehicleType, err := strconv.ParseUint(strings.TrimSpace(dirtyCustomer.VehicleType), 10, 8)
 	if err != nil {
+		log.Println("VehicleType")
 		log.Println(err.Error())
 	}
 	vehicleStatus, err := strconv.ParseUint(strings.TrimSpace(dirtyCustomer.VehicleStatus), 10, 8)
 	if err != nil {
+		log.Println("VehicleStatus")
 		log.Println(err.Error())
 	}
 	vehicleDealerID, err := strconv.ParseUint(strings.TrimSpace(dirtyCustomer.VehicleDealerID), 10, 8)
 	if err != nil {
+		log.Println("VehicleDealerID")
 		log.Println(err.Error())
 	}
 	vehicleTglStnk, err := time.Parse("2006-01-02 15:04:05", strings.TrimSpace(dirtyCustomer.VehicleTglStnk))
@@ -434,6 +443,7 @@ func createVehicleData(dirtyCustomer models.StagingCustomer, currentTime time.Ti
 	}
 	collateralTypeID, err := strconv.ParseUint(strings.TrimSpace(dirtyCustomer.CollateralTypeID), 10, 8)
 	if err != nil {
+		log.Println("CollateralTypeID")
 		log.Println(err.Error())
 	}
 
