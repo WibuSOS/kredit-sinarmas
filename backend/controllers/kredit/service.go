@@ -1,12 +1,13 @@
 package kredit
 
 import (
+	"log"
 	"math"
 	"strconv"
 )
 
 type Service interface {
-	GetChecklistPencairan(req *RequestChecklistPencairan) (ResponseChecklistPencairan, error)
+	GetChecklistPencairan(p string, l string) (ResponseChecklistPencairan, error)
 }
 
 type service struct {
@@ -17,14 +18,18 @@ func NewService(repo Repository) *service {
 	return &service{repo}
 }
 
-func (s *service) GetChecklistPencairan(req *RequestChecklistPencairan) (ResponseChecklistPencairan, error) {
-	req.Sanitize()
+func (s *service) GetChecklistPencairan(p string, l string) (ResponseChecklistPencairan, error) {
+	// log.Println("page:", req.Page)
+	// log.Println("limit:", req.Limit)
+	// req.Sanitize()
+	log.Println("page:", p)
+	log.Println("limit:", l)
 
-	page, err := strconv.ParseInt(req.Page, 10, 64)
+	page, err := strconv.ParseInt(p, 10, 64)
 	if err != nil {
 		return ResponseChecklistPencairan{}, err
 	}
-	limit, err := strconv.ParseInt(req.Limit, 10, 64)
+	limit, err := strconv.ParseInt(l, 10, 64)
 	if err != nil {
 		return ResponseChecklistPencairan{}, err
 	}

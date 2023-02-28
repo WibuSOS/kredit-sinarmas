@@ -16,26 +16,26 @@ func NewHandler(service Service) *Handler {
 }
 
 func (h *Handler) GetChecklistPencairan(c *gin.Context) {
-	var req RequestChecklistPencairan
-	if err := c.ShouldBindQuery(&req); err != nil {
-		log.Println(err.Error())
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code":    http.StatusBadRequest,
-			"message": err.Error(),
-		})
-		return
+	// var req RequestChecklistPencairan
+	// if err := c.ShouldBindQuery(&req); err != nil {
+	// 	log.Println(err.Error())
+	// 	c.JSON(http.StatusBadRequest, gin.H{
+	// 		"code":    http.StatusBadRequest,
+	// 		"message": err.Error(),
+	// 	})
+	// 	return
+	// }
+
+	page := c.Query("page")
+	if page == "" {
+		page = "1"
+	}
+	limit := c.Query("limit")
+	if limit == "" {
+		limit = "10"
 	}
 
-	// page := c.Query("page")
-	// if page == "" {
-	// 	page = "1"
-	// }
-	// limit := c.Query("limit")
-	// if limit == "" {
-	// 	limit = "10"
-	// }
-
-	res, err := h.Service.GetChecklistPencairan(&req)
+	res, err := h.Service.GetChecklistPencairan(page, limit)
 	if err != nil {
 		log.Println(err.Error())
 		c.JSON(http.StatusBadRequest, gin.H{
