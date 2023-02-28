@@ -2,6 +2,7 @@ import { Container } from 'react-bootstrap';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import './App.css';
 import Home from './components/home/Home';
+import ChecklistPencairan from './components/kredit/checklistPencairan/ChecklistPencairan';
 import Login from './components/login/Login';
 import Header from './components/shared/Header';
 import Sidebar from './components/shared/Sidebar';
@@ -20,7 +21,8 @@ function MultiRouter() {
       <Sidebar />
       <Container as="main">
         <Routes>
-          <Route path="/" element={<Home />} exact />
+          <Route path="/" element={<ChecklistPencairan />} exact />
+          <Route path="/kredit/checklist_pencairan" element={<ChecklistPencairan />} exact />
         </Routes>
       </Container>
     </BrowserRouter>

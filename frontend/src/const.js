@@ -6,6 +6,7 @@
 // const API_URL = process.env.API_URL;
 const API_URL = "http://localhost:8080";
 const LOGIN_URL = `${API_URL}/login`;
+const CHECKLIST_PENCAIRAN_URL = `${API_URL}/kredit/checklist_pencairan`;
 
 // DIRECTORIES
 const ASSETS_DIR = "/assets";
@@ -21,6 +22,7 @@ const RUPIAH = number => {
 export {
 	API_URL,
 	LOGIN_URL,
+	CHECKLIST_PENCAIRAN_URL,
 	ASSETS_DIR,
 	ICONS_DIR,
 	RUPIAH

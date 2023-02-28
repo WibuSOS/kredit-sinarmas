@@ -59,8 +59,8 @@ func (h *Handler) IsAuthenticated(c *gin.Context) {
 
 	if err != nil {
 		log.Println(err.Error())
-		c.AbortWithStatusJSON(http.StatusProxyAuthRequired, gin.H{
-			"code":    http.StatusProxyAuthRequired,
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+			"code":    http.StatusUnauthorized,
 			"message": err.Error(),
 		})
 		return
@@ -70,8 +70,8 @@ func (h *Handler) IsAuthenticated(c *gin.Context) {
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if !ok || !token.Valid {
 		log.Println("Authentication: Can't validate token!")
-		c.AbortWithStatusJSON(http.StatusProxyAuthRequired, gin.H{
-			"code":    http.StatusProxyAuthRequired,
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+			"code":    http.StatusUnauthorized,
 			"message": "Authentication: Can't validate token!",
 		})
 		return
@@ -79,8 +79,8 @@ func (h *Handler) IsAuthenticated(c *gin.Context) {
 
 	if err := claims.Valid(); err != nil {
 		log.Println(err.Error())
-		c.AbortWithStatusJSON(http.StatusProxyAuthRequired, gin.H{
-			"code":    http.StatusProxyAuthRequired,
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+			"code":    http.StatusUnauthorized,
 			"message": "Authentication: Can't validate time based claims!",
 		})
 		return
