@@ -1,14 +1,10 @@
 import { CHECKLIST_PENCAIRAN_URL } from "../../../const";
 import { useStore } from "../../../Context";
 import Swal from 'sweetalert2';
-import {
-	ReasonPhrases,
-	StatusCodes,
-	getReasonPhrase,
-	getStatusCode,
-} from 'http-status-codes';
+import { ReasonPhrases, StatusCodes, getReasonPhrase, getStatusCode } from 'http-status-codes';
 import { useEffect, useRef, useState } from 'react';
 import Table from 'react-bootstrap/Table';
+import Pagination, { bootstrap5PaginationPreset } from 'react-responsive-pagination';
 
 export default function ChecklistPencairan() {
 	const { state, dispatch } = useStore();
@@ -16,12 +12,14 @@ export default function ChecklistPencairan() {
 	const [records, setRecords] = useState([]);
 	const [countRecord, setCountRecord] = useState(0);
 	const [countPage, setCountPage] = useState(0);
-	const page = useRef(1);
-	const limit = useRef(10);
+	const [page, setPage] = useState(1);
+	const limit = useRef(5);
 
-	useEffect(() => getResource(page.current, limit.current), [page.current, limit.current]);
+	useEffect(() => getResource(page, limit.current), [page, limit.current]);
 
 	const getResource = (page, limit) => {
+		console.log(page);
+		console.log(limit);
 		fetch(`${CHECKLIST_PENCAIRAN_URL}?page=${page}&limit=${limit}`, {
 			method: 'GET',
 			headers: {
@@ -59,7 +57,7 @@ export default function ChecklistPencairan() {
 	};
 
 	const recordsJSX = records.map((record, index) => {
-		let no = (page.current - 1) * limit.current + index + 1;
+		let no = (page - 1) * limit.current + index + 1;
 		return (
 			<tr key={index}>
 				<td headers="no" style={{ fontSize: "1vw" }}>{no}</td>
@@ -83,23 +81,33 @@ export default function ChecklistPencairan() {
 	});
 
 	return (
-		<Table responsive striped bordered hover className="mt-3">
-			<thead>
-				<tr>
-					<th id="no" style={{ fontSize: "1vw" }} width={70}>No</th>
-					<th id="ppk" style={{ fontSize: "1vw" }} width={170}>PPK</th>
-					<th id="name" style={{ fontSize: "1vw" }} width={190}>Name</th>
-					<th id="channeling_company" style={{ fontSize: "1vw" }} width={130}>Channeling Company</th>
-					<th id="drawdown_date" style={{ fontSize: "1vw" }} width={190}>Drawdown Date</th>
-					<th id="loan_amount" style={{ fontSize: "1vw" }} width={190}>Loan Amount</th>
-					<th id="loan_period" style={{ fontSize: "1vw" }} width={190}>Loan Period</th>
-					<th id="interest_effective" style={{ fontSize: "1vw" }} width={190}>Interest Eff</th>
-					<th id="action" style={{ fontSize: "1vw" }} width={190}>action</th>
-				</tr>
-			</thead>
-			<tbody>
-				{recordsJSX}
-			</tbody>
-		</Table>
+		<>
+			<div className="mt-3">
+				<Pagination
+					{...bootstrap5PaginationPreset}
+					current={page}
+					total={countPage}
+					onPageChange={setPage}
+				/>
+			</div>
+			<Table responsive striped bordered hover className="mt-3">
+				<thead>
+					<tr>
+						<th id="no" style={{ fontSize: "1vw" }} width={70}>No</th>
+						<th id="ppk" style={{ fontSize: "1vw" }} width={170}>PPK</th>
+						<th id="name" style={{ fontSize: "1vw" }} width={190}>Name</th>
+						<th id="channeling_company" style={{ fontSize: "1vw" }} width={130}>Channeling Company</th>
+						<th id="drawdown_date" style={{ fontSize: "1vw" }} width={190}>Drawdown Date</th>
+						<th id="loan_amount" style={{ fontSize: "1vw" }} width={190}>Loan Amount</th>
+						<th id="loan_period" style={{ fontSize: "1vw" }} width={190}>Loan Period</th>
+						<th id="interest_effective" style={{ fontSize: "1vw" }} width={190}>Interest Eff</th>
+						<th id="action" style={{ fontSize: "1vw" }} width={190}>action</th>
+					</tr>
+				</thead>
+				<tbody>
+					{recordsJSX}
+				</tbody>
+			</Table>
+		</>
 	)
 }
