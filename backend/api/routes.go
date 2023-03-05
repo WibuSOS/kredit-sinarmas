@@ -30,6 +30,7 @@ func (s *server) SetupRouter() error {
 	{
 		kreditRoutes.GET("/checklist_pencairan", kreditHandler.GetChecklistPencairan)
 		kreditRoutes.PATCH("/checklist_pencairan", kreditHandler.UpdateChecklistPencairan)
+		kreditRoutes.GET("/drawdown_report", kreditHandler.GetDrawdownReport)
 	}
 
 	return nil

@@ -18,7 +18,7 @@ type CustomerDataTab struct {
 	DrawdownDate      time.Time `json:"drawdown_date" gorm:"type:date"`
 	TglPkChanneling   time.Time `json:"tgl_pk_channeling" gorm:"type:date"`
 	MotherMaidenName  string    `json:"mother_maiden_name" gorm:"type:varchar(100)"`
-	ChannelingCompany string    `json:"channeling_company" gorm:"type:varchar(100)"`
+	ChannelingCompany string    `json:"channeling_company" gorm:"type:varchar(50)"`
 	ApprovalStatus    string    `json:"approval_status" gorm:"type:varchar(2)"`
 }
 

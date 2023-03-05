@@ -27,9 +27,9 @@ export default function Sidebar() {
 						</div>
 					</Link>
 					<hr />
-					<Link to="/" className="sidebar-app-menu-body-link" onClick={handleClose}>
+					<Link to="/kredit/drawdown_report" className="sidebar-app-menu-body-link" onClick={handleClose}>
 						<div className="sidebar-app-menu-body-item">
-							Home
+							Drawdown Report
 						</div>
 					</Link>
 					<hr />

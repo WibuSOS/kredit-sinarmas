@@ -47,11 +47,11 @@ func (s *server) RunJobs() error {
 	asRepo := automatedService.NewRepository(s.DB)
 	var asService automatedService.Service = automatedService.NewService(asRepo)
 
-	if _, err := scheduler.Every(30).Minutes().Do(asService.ValidateAndMigrate); err != nil {
+	if _, err := scheduler.Every(5).Minutes().Do(asService.ValidateAndMigrate); err != nil {
 		return err
 	}
 
-	if _, err := scheduler.Every(15).Minutes().Do(asService.GenerateSkalaAngsuran); err != nil {
+	if _, err := scheduler.Every(2).Minutes().Do(asService.GenerateSkalaAngsuran); err != nil {
 		return err
 	}
 

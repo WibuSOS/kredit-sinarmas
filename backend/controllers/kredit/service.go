@@ -9,6 +9,7 @@ import (
 type Service interface {
 	GetChecklistPencairan(p string, l string) (ResponseChecklistPencairan, error)
 	UpdateChecklistPencairan(req *RequestUpdateChecklistPencairan) error
+	GetDrawdownReport(p string, l string, c string, b string, sD string, eD string, aS string) (ResponseDrawdownReport, error)
 }
 
 type service struct {
@@ -63,4 +64,69 @@ func (s *service) UpdateChecklistPencairan(req *RequestUpdateChecklistPencairan)
 	}
 
 	return nil
+}
+
+func (s *service) GetDrawdownReport(p string, l string, c string, b string, sD string, eD string, aS string) (ResponseDrawdownReport, error) {
+	log.Println("page:", p)
+	log.Println("limit:", l)
+	log.Println("company:", c)
+	log.Println("branch:", b)
+	log.Println("start_date:", sD)
+	log.Println("end_date:", eD)
+	log.Println("approval_status:", aS)
+
+	page, err := strconv.ParseInt(p, 10, 64)
+	if err != nil {
+		return ResponseDrawdownReport{}, err
+	}
+	limit, err := strconv.ParseInt(l, 10, 64)
+	if err != nil {
+		return ResponseDrawdownReport{}, err
+	}
+
+	fields := []string{}
+	values := []any{}
+
+	if c != "" {
+		fields = append(fields, "channeling_company = ?")
+		values = append(values, c)
+	}
+	if b != "" {
+		fields = append(fields, "branch = ?")
+		values = append(values, b)
+	}
+	if sD != "" {
+		fields = append(fields, "drawdown_date >= ?")
+		values = append(values, sD)
+	}
+	if eD != "" {
+		fields = append(fields, "drawdown_date <= ?")
+		values = append(values, eD)
+	}
+	if aS == "" {
+		fields = append(fields, "approval_status in (?)")
+		values = append(values, []string{"0", "1"})
+	} else {
+		fields = append(fields, "approval_status = ?")
+		values = append(values, aS)
+	}
+
+	records, countRecord, companies, branches, err := s.repo.GetDrawdownReport(int(page), int(limit), fields, values)
+	log.Println(companies, branches)
+	if err != nil {
+		return ResponseDrawdownReport{}, err
+	}
+	countPage := math.Ceil(float64(countRecord) / float64(limit))
+
+	res := ResponseDrawdownReport{
+		ResponseChecklistPencairan: ResponseChecklistPencairan{
+			Records:     records,
+			CountRecord: countRecord,
+			CountPage:   int(countPage),
+		},
+		Companies:        companies,
+		Branches:         branches,
+		ApprovalStatuses: []string{"0", "1"},
+	}
+	return res, nil
 }

@@ -7,6 +7,7 @@
 const API_URL = "http://localhost:8080";
 const LOGIN_URL = `${API_URL}/login`;
 const CHECKLIST_PENCAIRAN_URL = `${API_URL}/kredit/checklist_pencairan`;
+const DRAWDOWN_REPORT_URL = `${API_URL}/kredit/drawdown_report`;
 
 // DIRECTORIES
 const ASSETS_DIR = "/assets";
@@ -23,6 +24,7 @@ export {
 	API_URL,
 	LOGIN_URL,
 	CHECKLIST_PENCAIRAN_URL,
+	DRAWDOWN_REPORT_URL,
 	ASSETS_DIR,
 	ICONS_DIR,
 	RUPIAH

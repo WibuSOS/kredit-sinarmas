@@ -13,3 +13,15 @@ type RecordChecklistPencairan struct {
 	InterestEffective float32   `json:"interest_effective"`
 	ApprovalStatus    string    `json:"approval_status"`
 }
+
+type RecordDrawdownReport = RecordChecklistPencairan
+
+type RecordCompany struct {
+	CompanyCode      string `json:"company_code"`
+	CompanyShortName string `json:"company_short_name"`
+}
+
+type RecordBranch struct {
+	Code        string `json:"code"`
+	Description string `json:"description"`
+}
