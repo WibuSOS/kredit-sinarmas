@@ -1,4 +1,4 @@
-import { CHECKLIST_PENCAIRAN_URL } from "../../../const";
+import { CHECKLIST_PENCAIRAN_URL, RUPIAH } from "../../../const";
 import { useStore } from "../../../Context";
 import Swal from 'sweetalert2';
 import { ReasonPhrases, StatusCodes, getReasonPhrase, getStatusCode } from 'http-status-codes';
@@ -118,7 +118,7 @@ export default function ChecklistPencairan() {
 				<td headers="name" style={{ fontSize: "1vw" }}>{record.name}</td>
 				<td headers="channeling_company" style={{ fontSize: "1vw" }}>{record.channeling_company}</td>
 				<td headers="drawdown_date" style={{ fontSize: "1vw" }}>{record.drawdown_date.substring(0, 10)}</td>
-				<td headers="loan_amount" style={{ fontSize: "1vw" }}>{record.loan_amount}</td>
+				<td headers="loan_amount" style={{ fontSize: "1vw" }}>{RUPIAH(record.loan_amount)}</td>
 				<td headers="loan_period" style={{ fontSize: "1vw" }}>{record.loan_period}</td>
 				<td headers="interest_effective" style={{ fontSize: "1vw" }}>{record.interest_effective}</td>
 				<td headers="action" style={{ fontSize: "1vw" }} >
