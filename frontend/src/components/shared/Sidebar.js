@@ -21,15 +21,15 @@ export default function Sidebar() {
 					<Offcanvas.Title>Main Menu</Offcanvas.Title>
 				</Offcanvas.Header>
 				<Offcanvas.Body>
-					<Link to="/" className="sidebar-app-menu-body-link" onClick={handleClose}>
+					<Link to="/kredit/checklist_pencairan" className="sidebar-app-menu-body-link" onClick={handleClose}>
 						<div className="sidebar-app-menu-body-item">
-							Home
+							Checklist Pencairan
 						</div>
 					</Link>
 					<hr />
 					<Link to="/" className="sidebar-app-menu-body-link" onClick={handleClose}>
 						<div className="sidebar-app-menu-body-item">
-							Another Menu
+							Home
 						</div>
 					</Link>
 					<hr />

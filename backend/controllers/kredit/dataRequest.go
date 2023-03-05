@@ -1,6 +1,7 @@
 package kredit
 
 import (
+	"errors"
 	"strings"
 )
 
@@ -20,4 +21,16 @@ func (req *RequestChecklistPencairan) Sanitize() {
 	if req.Limit == "" {
 		req.Limit = "10"
 	}
+}
+
+type RequestUpdateChecklistPencairan struct {
+	Custcodes []string `json:"custcodes"`
+}
+
+func (req *RequestUpdateChecklistPencairan) Validate() error {
+	if len(req.Custcodes) == 0 {
+		return errors.New("No Record(s) Submitted")
+	}
+
+	return nil
 }

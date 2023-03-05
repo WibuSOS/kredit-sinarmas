@@ -16,16 +16,6 @@ func NewHandler(service Service) *Handler {
 }
 
 func (h *Handler) GetChecklistPencairan(c *gin.Context) {
-	// var req RequestChecklistPencairan
-	// if err := c.ShouldBindQuery(&req); err != nil {
-	// 	log.Println(err.Error())
-	// 	c.JSON(http.StatusBadRequest, gin.H{
-	// 		"code":    http.StatusBadRequest,
-	// 		"message": err.Error(),
-	// 	})
-	// 	return
-	// }
-
 	page := c.Query("page")
 	if page == "" {
 		page = "1"
@@ -52,47 +42,30 @@ func (h *Handler) GetChecklistPencairan(c *gin.Context) {
 	})
 }
 
-// func (h *Handler) IsAuthenticated(c *gin.Context) {
-// 	fullToken := c.GetHeader("Authorization")
-// 	trimmedToken := strings.TrimPrefix(fullToken, "Bearer ")
-// 	token, err := jwt.Parse(trimmedToken, func(token *jwt.Token) (interface{}, error) {
-// 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-// 			return nil, fmt.Errorf("Authentication: Can't verify token!")
-// 		}
-// 		return []byte(os.Getenv("JWT_SECRET")), nil
-// 	})
+func (h *Handler) UpdateChecklistPencairan(c *gin.Context) {
+	var req RequestUpdateChecklistPencairan
+	if err := c.ShouldBindJSON(&req); err != nil {
+		log.Println(err.Error())
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    http.StatusBadRequest,
+			"message": err.Error(),
+		})
+		return
+	}
 
-// 	if err != nil {
-// 		log.Println(err.Error())
-// 		c.AbortWithStatusJSON(http.StatusProxyAuthRequired, gin.H{
-// 			"code":    http.StatusProxyAuthRequired,
-// 			"message": err.Error(),
-// 		})
-// 		return
-// 	}
-// 	log.Println("Authentication: Token verified!")
+	log.Println("custcodes:", req.Custcodes)
+	err := h.Service.UpdateChecklistPencairan(&req)
+	if err != nil {
+		log.Println(err.Error())
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    http.StatusBadRequest,
+			"message": err.Error(),
+		})
+		return
+	}
 
-// 	claims, ok := token.Claims.(jwt.MapClaims)
-// 	if !ok || !token.Valid {
-// 		log.Println("Authentication: Can't validate token!")
-// 		c.AbortWithStatusJSON(http.StatusProxyAuthRequired, gin.H{
-// 			"code":    http.StatusProxyAuthRequired,
-// 			"message": "Authentication: Can't validate token!",
-// 		})
-// 		return
-// 	}
-
-// 	if err := claims.Valid(); err != nil {
-// 		log.Println(err.Error())
-// 		c.AbortWithStatusJSON(http.StatusProxyAuthRequired, gin.H{
-// 			"code":    http.StatusProxyAuthRequired,
-// 			"message": "Authentication: Can't validate time based claims!",
-// 		})
-// 		return
-// 	}
-
-// 	c.Set("userID", claims["ID"])
-// 	c.Set("username", claims["Username"])
-// 	c.Set("name", claims["Name"])
-// 	c.Next()
-// }
+	c.JSON(http.StatusOK, gin.H{
+		"code":    http.StatusOK,
+		"message": "successful",
+	})
+}

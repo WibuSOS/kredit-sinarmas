@@ -29,6 +29,7 @@ func (s *server) SetupRouter() error {
 	kreditRoutes := s.Router.Group("/kredit", authHandler.IsAuthenticated)
 	{
 		kreditRoutes.GET("/checklist_pencairan", kreditHandler.GetChecklistPencairan)
+		kreditRoutes.PATCH("/checklist_pencairan", kreditHandler.UpdateChecklistPencairan)
 	}
 
 	return nil

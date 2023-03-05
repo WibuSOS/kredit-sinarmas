@@ -27,30 +27,22 @@ export default function ChecklistPencairan() {
 				'Content-Type': 'application/json',
 				'Authorization': state.user.token
 			},
-			// body: JSON.stringify(body)
 		})
 			.then(res => {
 				if (!res.ok && res.status == StatusCodes.UNAUTHORIZED) {
 					handleLogOut();
 					throw new Error(`${res.status}::${res.statusText}`);
 				}
-				if (!res.ok) {
-					throw new Error(`${res.status}::${res.statusText}`);
-				}
 				return res.json()
 			})
 			.then(json => {
-				// if (json.code == StatusCodes.UNAUTHORIZED) {
-				// 	handleLogOut();
-				// 	return
-				// }
 				if (!json.data) {
-					Swal.fire({ icon: 'error', title: 'Error', text: json.message });
-					return
+					Swal.fire({ icon: 'error', title: 'Error', text: getReasonPhrase(json.code) });
+					throw new Error(`${json.code}::${getReasonPhrase(json.code)}::${json.message}`);
 				}
 				if (json.data.records) {
-					const records = json.data.records.map((record) => ({ ...record, is_checked: false }));
-					setRecords(records);
+					const newRecords = json.data.records.map((record) => ({ ...record, is_checked: false }));
+					setRecords(newRecords);
 				} else {
 					setRecords([]);
 				}
@@ -82,6 +74,10 @@ export default function ChecklistPencairan() {
 				return record.custcode
 			})
 		};
+		if (body.custcodes.length == 0) {
+			Swal.fire({ icon: 'error', title: 'Error', text: 'No Record(s) Submitted' });
+			return
+		}
 		fetch(CHECKLIST_PENCAIRAN_URL, {
 			method: 'PATCH',
 			headers: {
@@ -96,19 +92,18 @@ export default function ChecklistPencairan() {
 					handleLogOut();
 					throw new Error(`${res.status}::${res.statusText}`);
 				}
-				if (!res.ok) {
-					throw new Error(`${res.status}::${res.statusText}`);
-				}
 				return res.json()
 			})
 			.then(json => {
-				// if (json.code == StatusCodes.UNAUTHORIZED) {
-				// 	handleLogOut();
-				// 	return
-				// }
-				if (!json.data) {
-					Swal.fire({ icon: 'error', title: 'Error', text: json.message });
-					return
+				if (json.code != StatusCodes.OK) {
+					Swal.fire({ icon: 'error', title: 'Error', text: getReasonPhrase(json.code) });
+					throw new Error(`${json.code}::${getReasonPhrase(json.code)}::${json.message}`);
+				}
+				Swal.fire({ icon: 'success', title: 'Success', showConfirmButton: false, timer: 1500 });
+				if (page - 1 >= 1) {
+					setPage(page - 1);
+				} else {
+					getResource(page, limit.current);
 				}
 			})
 			.catch(err => console.error(err));

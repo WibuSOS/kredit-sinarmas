@@ -9,6 +9,7 @@ import (
 
 type Repository interface {
 	GetChecklistPencairan(page int, limit int, fields []string, values []any) ([]RecordChecklistPencairan, int, error)
+	UpdateChecklistPencairan(fields []string, values []string) error
 }
 
 type repository struct {
@@ -74,4 +75,17 @@ func getCountChecklistPencairan(db *gorm.DB, fields []string, values []any) (int
 	}
 
 	return result.Size, nil
+}
+
+func (r *repository) UpdateChecklistPencairan(fields []string, values []string) error {
+	err := r.db.
+		Model(&models.CustomerDataTab{}).
+		Where(strings.Join(fields, " AND "), values).
+		Update("approval_status", "0").Error
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

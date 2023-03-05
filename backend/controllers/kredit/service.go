@@ -8,6 +8,7 @@ import (
 
 type Service interface {
 	GetChecklistPencairan(p string, l string) (ResponseChecklistPencairan, error)
+	UpdateChecklistPencairan(req *RequestUpdateChecklistPencairan) error
 }
 
 type service struct {
@@ -19,9 +20,6 @@ func NewService(repo Repository) *service {
 }
 
 func (s *service) GetChecklistPencairan(p string, l string) (ResponseChecklistPencairan, error) {
-	// log.Println("page:", req.Page)
-	// log.Println("limit:", req.Limit)
-	// req.Sanitize()
 	log.Println("page:", p)
 	log.Println("limit:", l)
 
@@ -49,4 +47,20 @@ func (s *service) GetChecklistPencairan(p string, l string) (ResponseChecklistPe
 		CountPage:   int(countPage),
 	}
 	return res, nil
+}
+
+func (s *service) UpdateChecklistPencairan(req *RequestUpdateChecklistPencairan) error {
+	if err := req.Validate(); err != nil {
+		return err
+	}
+
+	fields := []string{"custcode in (?)"}
+	values := req.Custcodes
+
+	err := s.repo.UpdateChecklistPencairan(fields, values)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
