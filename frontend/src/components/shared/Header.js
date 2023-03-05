@@ -29,7 +29,7 @@ export default function Header() {
 								{state.user.username}
 							</a>
 							<ul className="dropdown-menu">
-								<li><Link to="#" className="dropdown-item">Change password</Link></li>
+								<li><Link to="/change_password" className="dropdown-item">Change password</Link></li>
 								<li><hr className="dropdown-divider" /></li>
 								<li><Link to="#" className="dropdown-item" onClick={handleLogOut}>Log out</Link></li>
 							</ul>

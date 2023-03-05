@@ -21,3 +21,13 @@ func (req DataRequest) Validation() error {
 
 	return nil
 }
+
+type RequestChangePassword struct {
+	OldPassword     string `json:"old_password"`
+	NewPassword     string `json:"new_password"`
+	ConfirmPassword string `json:"confirm_password"`
+}
+
+func (req RequestChangePassword) Validation() error {
+	return nil
+}

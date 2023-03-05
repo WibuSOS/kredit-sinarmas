@@ -1,6 +1,7 @@
 import { Container } from 'react-bootstrap';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import './App.css';
+import ChangePassword from './components/changePassword/ChangePassword';
 import Home from './components/home/Home';
 import ChecklistPencairan from './components/kredit/checklistPencairan/ChecklistPencairan';
 import DrawdownReport from './components/kredit/drawdownReport/DrawdownReport';
@@ -23,6 +24,7 @@ function MultiRouter() {
       <Container as="main">
         <Routes>
           <Route path="/" element={<ChecklistPencairan />} exact />
+          <Route path="/change_password" element={<ChangePassword />} exact />
           <Route path="/kredit/checklist_pencairan" element={<ChecklistPencairan />} exact />
           <Route path="/kredit/drawdown_report" element={<DrawdownReport />} exact />
         </Routes>

@@ -4,6 +4,7 @@ import "sinarmas/kredit-sinarmas/utils/authToken"
 
 type Service interface {
 	Login(req DataRequest) (DataResponse, error)
+	ChangePassword(req *RequestChangePassword, userID uint) error
 }
 
 type service struct {
@@ -37,4 +38,17 @@ func (s *service) Login(req DataRequest) (DataResponse, error) {
 	}
 
 	return res, nil
+}
+
+func (s *service) ChangePassword(req *RequestChangePassword, userID uint) error {
+	if err := req.Validation(); err != nil {
+		return err
+	}
+
+	err := s.repo.ChangePassword(req, userID)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

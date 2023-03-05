@@ -85,9 +85,40 @@ func (h *Handler) IsAuthenticated(c *gin.Context) {
 		})
 		return
 	}
+	log.Println(claims)
+	log.Printf("userID:%T", claims["id"])
 
-	c.Set("userID", claims["ID"])
-	c.Set("username", claims["Username"])
-	c.Set("name", claims["Name"])
+	c.Set("userID", claims["id"])
+	c.Set("username", claims["username"])
+	c.Set("name", claims["name"])
 	c.Next()
+}
+
+func (h *Handler) ChangePassword(c *gin.Context) {
+	var req RequestChangePassword
+	if err := c.ShouldBindJSON(&req); err != nil {
+		log.Println(err.Error())
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    http.StatusBadRequest,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	userID := c.GetFloat64("userID")
+	log.Println("userID:", userID)
+	err := h.Service.ChangePassword(&req, uint(userID))
+	if err != nil {
+		log.Println(err.Error())
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    http.StatusBadRequest,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    http.StatusOK,
+		"message": "successful",
+	})
 }

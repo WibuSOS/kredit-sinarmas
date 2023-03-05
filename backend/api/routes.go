@@ -25,6 +25,7 @@ func (s *server) SetupRouter() error {
 	kreditHandler := kredit.NewHandler(kreditService)
 
 	s.Router.POST("/login", authHandler.Login)
+	s.Router.PATCH("/change_password", authHandler.IsAuthenticated, authHandler.ChangePassword)
 
 	kreditRoutes := s.Router.Group("/kredit", authHandler.IsAuthenticated)
 	{
