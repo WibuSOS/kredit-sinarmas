@@ -5,7 +5,7 @@ import { useStore } from '../../Context';
 
 export default function Header() {
 	const { state, dispatch } = useStore();
-	const handleLogOut = () => dispatch({ type: 'delete' });
+	const handleLogOut = () => dispatch({ type: 'logout' });
 
 	return (
 		<nav className="navbar navbar-expand-lg bg-light sticky-top">

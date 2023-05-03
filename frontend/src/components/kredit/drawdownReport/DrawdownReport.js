@@ -1,7 +1,7 @@
-import { CHECKLIST_PENCAIRAN_URL, DRAWDOWN_REPORT_URL, RUPIAH } from "../../../const";
+import { DRAWDOWN_REPORT_URL, RUPIAH } from "../../../const";
 import { useStore } from "../../../Context";
 import Swal from 'sweetalert2';
-import { ReasonPhrases, StatusCodes, getReasonPhrase, getStatusCode } from 'http-status-codes';
+import { StatusCodes, getReasonPhrase } from 'http-status-codes';
 import { useEffect, useRef, useState } from 'react';
 import Table from 'react-bootstrap/Table';
 import Form from 'react-bootstrap/Form';
@@ -12,7 +12,7 @@ import Pagination, { bootstrap5PaginationPreset } from 'react-responsive-paginat
 
 export default function DrawdownReport() {
 	const { state, dispatch } = useStore();
-	const handleLogOut = () => dispatch({ type: 'delete' });
+	const handleLogOut = () => dispatch({ type: 'logout' });
 	const [records, setRecords] = useState([]);
 	const [countRecord, setCountRecord] = useState(0);
 	const [countPage, setCountPage] = useState(0);
@@ -42,14 +42,14 @@ export default function DrawdownReport() {
 		console.log("page:", page);
 		fetch(`${DRAWDOWN_REPORT_URL}?page=${page}&limit=${limit}&company=${company}&branch=${branch}&start_date=${startDate}&end_date=${endDate}&approval_status=${approvalStatus}`, {
 			method: 'GET',
+			credentials: 'include',
 			headers: {
 				'Accept': 'application/json',
 				'Content-Type': 'application/json',
-				'Authorization': state.user.token
 			},
 		})
 			.then(res => {
-				if (!res.ok && res.status == StatusCodes.UNAUTHORIZED) {
+				if (!res.ok && (res.status == StatusCodes.UNAUTHORIZED || res.status == StatusCodes.FORBIDDEN)) {
 					handleLogOut();
 					throw new Error(`${res.status}::${res.statusText}`);
 				}
@@ -80,7 +80,7 @@ export default function DrawdownReport() {
 		console.log("submitted");
 		console.log("approval:", filterApprovalStatus.current);
 		console.log("page:", page);
-		if (page == 1) {
+		if (page === 1) {
 			getResource(
 				page,
 				limit.current,

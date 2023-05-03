@@ -1,7 +1,7 @@
 import { CHECKLIST_PENCAIRAN_URL, RUPIAH } from "../../../const";
 import { useStore } from "../../../Context";
 import Swal from 'sweetalert2';
-import { ReasonPhrases, StatusCodes, getReasonPhrase, getStatusCode } from 'http-status-codes';
+import { StatusCodes, getReasonPhrase } from 'http-status-codes';
 import { useEffect, useRef, useState } from 'react';
 import Table from 'react-bootstrap/Table';
 import Form from 'react-bootstrap/Form';
@@ -9,8 +9,8 @@ import Button from 'react-bootstrap/Button';
 import Pagination, { bootstrap5PaginationPreset } from 'react-responsive-pagination';
 
 export default function ChecklistPencairan() {
-	const { state, dispatch } = useStore();
-	const handleLogOut = () => dispatch({ type: 'delete' });
+	const { dispatch } = useStore();
+	const handleLogOut = () => dispatch({ type: 'logout' });
 	const [records, setRecords] = useState([]);
 	const [countRecord, setCountRecord] = useState(0);
 	const [countPage, setCountPage] = useState(0);
@@ -22,14 +22,14 @@ export default function ChecklistPencairan() {
 	const getResource = (page, limit) => {
 		fetch(`${CHECKLIST_PENCAIRAN_URL}?page=${page}&limit=${limit}`, {
 			method: 'GET',
+			credentials: 'include',
 			headers: {
 				'Accept': 'application/json',
-				'Content-Type': 'application/json',
-				'Authorization': state.user.token
-			},
+				'Content-Type': 'application/json'
+			}
 		})
 			.then(res => {
-				if (!res.ok && res.status == StatusCodes.UNAUTHORIZED) {
+				if (!res.ok && (res.status == StatusCodes.UNAUTHORIZED || res.status == StatusCodes.FORBIDDEN)) {
 					handleLogOut();
 					throw new Error(`${res.status}::${res.statusText}`);
 				}
@@ -56,7 +56,7 @@ export default function ChecklistPencairan() {
 		console.log(index);
 		console.log(records[index].name);
 		const newRecords = records.map((record, i) => {
-			if (i == index) {
+			if (i === index) {
 				record.is_checked = !record.is_checked
 				return record
 			}
@@ -74,28 +74,28 @@ export default function ChecklistPencairan() {
 				return record.custcode
 			})
 		};
-		if (body.custcodes.length == 0) {
+		if (body.custcodes.length === 0) {
 			Swal.fire({ icon: 'error', title: 'Error', text: 'No Record(s) Submitted' });
 			return
 		}
 		fetch(CHECKLIST_PENCAIRAN_URL, {
 			method: 'PATCH',
+			credentials: 'include',
 			headers: {
 				'Accept': 'application/json',
-				'Content-Type': 'application/json',
-				'Authorization': state.user.token
+				'Content-Type': 'application/json'
 			},
 			body: JSON.stringify(body)
 		})
 			.then(res => {
-				if (!res.ok && res.status == StatusCodes.UNAUTHORIZED) {
+				if (!res.ok && (res.status == StatusCodes.UNAUTHORIZED || res.status == StatusCodes.FORBIDDEN)) {
 					handleLogOut();
 					throw new Error(`${res.status}::${res.statusText}`);
 				}
 				return res.json()
 			})
 			.then(json => {
-				if (json.code != StatusCodes.OK) {
+				if (json.code !== StatusCodes.OK) {
 					Swal.fire({ icon: 'error', title: 'Error', text: getReasonPhrase(json.code) });
 					throw new Error(`${json.code}::${getReasonPhrase(json.code)}::${json.message}`);
 				}

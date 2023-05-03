@@ -1,6 +1,8 @@
 package api
 
 import (
+	"errors"
+	"os"
 	"sinarmas/kredit-sinarmas/controllers/authentication"
 	"sinarmas/kredit-sinarmas/controllers/kredit"
 
@@ -8,10 +10,16 @@ import (
 )
 
 func (s *server) SetupRouter() error {
+	origin_1 := os.Getenv("ORIGIN_1")
+	if origin_1 == "" {
+		return errors.New("origin setting not found")
+	}
+
 	s.Router.Use(cors.New(cors.Config{
-		AllowOrigins: []string{"*"},
-		AllowMethods: []string{"GET", "POST", "PUT", "PATCH", "DELETE"},
-		AllowHeaders: []string{"Origin", "Accept", "Content-Type", "Authorization", "Access-Control-Allow-Origin"},
+		AllowOrigins:     []string{origin_1},
+		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE"},
+		AllowHeaders:     []string{"Origin", "Accept", "Content-Type", "Cookie", "Authorization"},
+		AllowCredentials: true,
 	}))
 
 	// authentication

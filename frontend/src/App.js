@@ -13,7 +13,7 @@ import UserContext, { useStore } from './Context';
 function MultiRouter() {
   const { state } = useStore();
 
-  if (!state.user?.token) {
+  if (!state.loggedIn) {
     return <Login />
   }
 

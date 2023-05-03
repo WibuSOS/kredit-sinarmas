@@ -7,7 +7,7 @@ import { useStore } from "../../Context";
 
 export default function ChangePassword() {
 	const { state, dispatch } = useStore();
-	const handleLogOut = () => dispatch({ type: 'delete' });
+	const handleLogOut = () => dispatch({ type: 'logout' });
 
 	const handleSubmit = (e) => {
 		e.preventDefault();
@@ -39,7 +39,7 @@ export default function ChangePassword() {
 			body: JSON.stringify(body)
 		})
 			.then(res => {
-				if (!res.ok && res.status == StatusCodes.UNAUTHORIZED) {
+				if (!res.ok && (res.status == StatusCodes.UNAUTHORIZED || res.status == StatusCodes.FORBIDDEN)) {
 					handleLogOut();
 					throw new Error(`${res.status}::${res.statusText}`);
 				}
