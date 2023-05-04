@@ -1,7 +1,7 @@
 package authentication
 
 import (
-	"fmt"
+	"errors"
 	"log"
 	"net/http"
 	"os"
@@ -21,6 +21,17 @@ func NewHandler(service Service) *Handler {
 
 func (h *Handler) Login(c *gin.Context) {
 	var req DataRequest
+
+	domain := os.Getenv("DOMAIN")
+	if domain == "" {
+		log.Println("domain setting not found")
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    http.StatusInternalServerError,
+			"message": errors.New("domain setting not found"),
+		})
+		return
+	}
+
 	if err := c.ShouldBindJSON(&req); err != nil {
 		log.Println(err.Error())
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -40,6 +51,7 @@ func (h *Handler) Login(c *gin.Context) {
 		return
 	}
 
+	c.SetCookie("authorization", res.Token, 86400, "/", domain, false, true)
 	c.JSON(http.StatusOK, gin.H{
 		"code":    http.StatusOK,
 		"message": "successful",
@@ -47,12 +59,40 @@ func (h *Handler) Login(c *gin.Context) {
 	})
 }
 
+func (h *Handler) Logout(c *gin.Context) {
+	// domain := os.Getenv("DOMAIN")
+	// if domain == "" {
+	// 	log.Println("domain setting not found")
+	// 	c.JSON(http.StatusInternalServerError, gin.H{
+	// 		"code":    http.StatusInternalServerError,
+	// 		"message": errors.New("domain setting not found"),
+	// 	})
+	// 	return
+	// }
+
+	c.SetCookie("authorization", "", 0, "/", "", false, true)
+	c.JSON(http.StatusOK, gin.H{
+		"code":    http.StatusOK,
+		"message": "successful",
+	})
+}
+
 func (h *Handler) IsAuthenticated(c *gin.Context) {
-	fullToken := c.GetHeader("Authorization")
+	fullToken, err := c.Cookie("authorization")
+	log.Println(fullToken)
+	if err != nil {
+		log.Println(err.Error())
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+			"code":    http.StatusUnauthorized,
+			"message": err.Error(),
+		})
+		return
+	}
+
 	trimmedToken := strings.TrimPrefix(fullToken, "Bearer ")
 	token, err := jwt.Parse(trimmedToken, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("Authentication: Can't verify token!")
+			return nil, errors.New("authentication: can't verify token")
 		}
 		return []byte(os.Getenv("JWT_SECRET")), nil
 	})
@@ -65,14 +105,14 @@ func (h *Handler) IsAuthenticated(c *gin.Context) {
 		})
 		return
 	}
-	log.Println("Authentication: Token verified!")
+	log.Println("authentication: token verified")
 
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if !ok || !token.Valid {
-		log.Println("Authentication: Can't validate token!")
+		log.Println("authentication: can't validate token")
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 			"code":    http.StatusUnauthorized,
-			"message": "Authentication: Can't validate token!",
+			"message": "authentication: can't validate token",
 		})
 		return
 	}
@@ -81,7 +121,7 @@ func (h *Handler) IsAuthenticated(c *gin.Context) {
 		log.Println(err.Error())
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 			"code":    http.StatusUnauthorized,
-			"message": "Authentication: Can't validate time based claims!",
+			"message": "authentication: can't validate time based claims",
 		})
 		return
 	}

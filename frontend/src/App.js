@@ -2,7 +2,6 @@ import { Container } from 'react-bootstrap';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import './App.css';
 import ChangePassword from './components/changePassword/ChangePassword';
-import Home from './components/home/Home';
 import ChecklistPencairan from './components/kredit/checklistPencairan/ChecklistPencairan';
 import DrawdownReport from './components/kredit/drawdownReport/DrawdownReport';
 import Login from './components/login/Login';
@@ -13,7 +12,7 @@ import UserContext, { useStore } from './Context';
 function MultiRouter() {
   const { state } = useStore();
 
-  if (!state.user?.token) {
+  if (!state.loggedIn) {
     return <Login />
   }
 

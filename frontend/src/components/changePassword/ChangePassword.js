@@ -1,13 +1,13 @@
 import { CHANGE_PASSWORD_URL } from "../../const";
 import Swal from 'sweetalert2';
-import { ReasonPhrases, StatusCodes, getReasonPhrase, getStatusCode } from 'http-status-codes';
+import { StatusCodes, getReasonPhrase } from 'http-status-codes';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import { useStore } from "../../Context";
 
 export default function ChangePassword() {
-	const { state, dispatch } = useStore();
-	const handleLogOut = () => dispatch({ type: 'delete' });
+	const { dispatch } = useStore();
+	const handleLogOut = () => dispatch({ type: 'logout' });
 
 	const handleSubmit = (e) => {
 		e.preventDefault();
@@ -21,32 +21,31 @@ export default function ChangePassword() {
 			Swal.fire({ icon: 'error', title: 'Error', text: 'Form Harus Terisi' });
 			return
 		}
-		if (body.new_password.length != 8) {
+		if (body.new_password.length !== 8) {
 			Swal.fire({ icon: 'error', title: 'Error', text: 'Password Baru Harus 8 Karakter' });
 			return
 		}
-		if (body.new_password != body.confirm_password) {
+		if (body.new_password !== body.confirm_password) {
 			Swal.fire({ icon: 'error', title: 'Error', text: 'Pastikan Password Baru Benar' });
 			return
 		}
 		fetch(CHANGE_PASSWORD_URL, {
 			method: 'PATCH',
+			credentials: 'include',
 			headers: {
-				'Accept': 'application/json',
-				'Content-Type': 'application/json',
-				'Authorization': state.user.token
+				'Accept': 'application/json'
 			},
 			body: JSON.stringify(body)
 		})
 			.then(res => {
-				if (!res.ok && res.status == StatusCodes.UNAUTHORIZED) {
+				if (!res.ok && (res.status === StatusCodes.UNAUTHORIZED || res.status === StatusCodes.FORBIDDEN)) {
 					handleLogOut();
 					throw new Error(`${res.status}::${res.statusText}`);
 				}
 				return res.json()
 			})
 			.then(json => {
-				if (json.code != StatusCodes.OK) {
+				if (json.code !== StatusCodes.OK) {
 					Swal.fire({ icon: 'error', title: 'Error', text: getReasonPhrase(json.code) });
 					throw new Error(`${json.code}::${getReasonPhrase(json.code)}::${json.message}`);
 				}

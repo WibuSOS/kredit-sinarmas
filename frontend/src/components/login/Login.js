@@ -18,9 +18,9 @@ export default function Login() {
 		console.log(body.password);
 		fetch(LOGIN_URL, {
 			method: 'POST',
+			credentials: 'include',
 			headers: {
-				'Accept': 'application/json',
-				'Content-Type': 'application/json'
+				'Accept': 'application/json'
 			},
 			body: JSON.stringify(body)
 		})
@@ -31,15 +31,8 @@ export default function Login() {
 					return
 				}
 				Swal.fire({ icon: 'success', title: 'Login Berhasil', showConfirmButton: false, timer: 1500 });
-				const id = json.data?.id;
-				const username = json.data?.username;
-				const name = json.data?.name;
-				const token = json.data?.token;
-				localStorage.setItem('id', id);
-				localStorage.setItem('username', username);
-				localStorage.setItem('name', name);
-				localStorage.setItem('token', token);
-				dispatch({ type: 'set', payload: { id, username, name, token } });
+				const payload = { name: json.data?.name }
+				dispatch({ type: 'login', payload });
 			})
 			.catch(err => console.error(err));
 	};

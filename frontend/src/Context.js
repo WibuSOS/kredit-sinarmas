@@ -2,15 +2,14 @@ import { createContext, useContext, useReducer } from 'react';
 
 function userReducer(state, action) {
 	switch (action.type) {
-		case 'set': {
-			return { ...state, user: action.payload };
+		case 'login': {
+			localStorage.setItem("loggedIn", 1);
+			localStorage.setItem("name", action.payload.name);
+			return { ...state, loggedIn: 1, user: action.payload };
 		}
-		case 'delete': {
+		case 'logout': {
 			localStorage.clear();
-			return { ...state, user: null };
-		}
-		case 'setDefault': {
-			return { ...state, ...action.payload };
+			return { ...state, loggedIn: 0, user: { name: null } };
 		}
 		default: {
 			console.log(action.type + "not found");
@@ -23,12 +22,10 @@ const useStore = () => useContext(Store);
 export { Store, useStore };
 
 export default function UserContext({ children }) {
-	const [state, dispatch] = useReducer(userReducer, { user: null }, () => {
-		const id = localStorage.getItem("id");
-		const username = localStorage.getItem("username");
-		const name = localStorage.getItem("name");
-		const token = localStorage.getItem("token");
-		return { user: { id, username, name, token } };
+	const [state, dispatch] = useReducer(userReducer, { loggedIn: 0, user: null }, () => {
+		const loggedIn = localStorage.getItem("loggedIn");
+		const user = { name: localStorage.getItem("name") };
+		return { loggedIn, user };
 	});
 	const value = { state, dispatch };
 

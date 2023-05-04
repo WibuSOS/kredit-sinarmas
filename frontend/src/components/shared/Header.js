@@ -1,11 +1,30 @@
 import './Header.css';
 import { Link } from 'react-router-dom';
-import { ICONS_DIR } from '../../const';
+import { ICONS_DIR, LOGIN_URL } from '../../const';
 import { useStore } from '../../Context';
+import Swal from 'sweetalert2';
 
 export default function Header() {
 	const { state, dispatch } = useStore();
-	const handleLogOut = () => dispatch({ type: 'delete' });
+	const handleLogOut = () => {
+		fetch(LOGIN_URL, {
+			method: 'DELETE',
+			credentials: 'include',
+			headers: {
+				'Accept': 'application/json'
+			}
+		})
+			.then(res => {
+				if (!res.ok) {
+					Swal.fire({ icon: 'error', title: 'Something is Wrong', text: 'Proceeding to logout\nRedirected to Login', showConfirmButton: false, timer: 1500 });
+					dispatch({ type: 'logout' });
+					throw new Error(`${res.status}::${res.statusText}`);
+				}
+				Swal.fire({ icon: 'success', title: 'Logout Success', text: 'Redirected to Login', showConfirmButton: false, timer: 1500 });
+				dispatch({ type: 'logout' });
+			})
+			.catch(err => console.error(err));
+	};
 
 	return (
 		<nav className="navbar navbar-expand-lg bg-light sticky-top">
@@ -26,7 +45,7 @@ export default function Header() {
 					<ul className="navbar-nav ms-auto mb-2 mb-lg-0">
 						<li className="nav-item dropdown">
 							<a className="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-								{state.user.username}
+								{state.user.name}
 							</a>
 							<ul className="dropdown-menu">
 								<li><Link to="/change_password" className="dropdown-item">Change password</Link></li>
