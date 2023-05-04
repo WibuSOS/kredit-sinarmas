@@ -4,11 +4,12 @@ function userReducer(state, action) {
 	switch (action.type) {
 		case 'login': {
 			localStorage.setItem("loggedIn", 1);
-			return { ...state, loggedIn: 1 };
+			localStorage.setItem("name", action.payload.name);
+			return { ...state, loggedIn: 1, user: action.payload };
 		}
 		case 'logout': {
 			localStorage.clear();
-			return { ...state, loggedIn: 0 };
+			return { ...state, loggedIn: 0, user: { name: null } };
 		}
 		default: {
 			console.log(action.type + "not found");
@@ -21,9 +22,10 @@ const useStore = () => useContext(Store);
 export { Store, useStore };
 
 export default function UserContext({ children }) {
-	const [state, dispatch] = useReducer(userReducer, { loggedIn: 0 }, () => {
+	const [state, dispatch] = useReducer(userReducer, { loggedIn: 0, user: null }, () => {
 		const loggedIn = localStorage.getItem("loggedIn");
-		return { loggedIn };
+		const user = { name: localStorage.getItem("name") };
+		return { loggedIn, user };
 	});
 	const value = { state, dispatch };
 

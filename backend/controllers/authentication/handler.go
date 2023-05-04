@@ -59,6 +59,24 @@ func (h *Handler) Login(c *gin.Context) {
 	})
 }
 
+func (h *Handler) Logout(c *gin.Context) {
+	// domain := os.Getenv("DOMAIN")
+	// if domain == "" {
+	// 	log.Println("domain setting not found")
+	// 	c.JSON(http.StatusInternalServerError, gin.H{
+	// 		"code":    http.StatusInternalServerError,
+	// 		"message": errors.New("domain setting not found"),
+	// 	})
+	// 	return
+	// }
+
+	c.SetCookie("authorization", "", 0, "/", "", false, true)
+	c.JSON(http.StatusOK, gin.H{
+		"code":    http.StatusOK,
+		"message": "successful",
+	})
+}
+
 func (h *Handler) IsAuthenticated(c *gin.Context) {
 	fullToken, err := c.Cookie("authorization")
 	log.Println(fullToken)

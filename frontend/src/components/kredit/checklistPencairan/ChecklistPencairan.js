@@ -24,12 +24,11 @@ export default function ChecklistPencairan() {
 			method: 'GET',
 			credentials: 'include',
 			headers: {
-				'Accept': 'application/json',
-				'Content-Type': 'application/json'
+				'Accept': 'application/json'
 			}
 		})
 			.then(res => {
-				if (!res.ok && (res.status == StatusCodes.UNAUTHORIZED || res.status == StatusCodes.FORBIDDEN)) {
+				if (!res.ok && (res.status === StatusCodes.UNAUTHORIZED || res.status === StatusCodes.FORBIDDEN)) {
 					handleLogOut();
 					throw new Error(`${res.status}::${res.statusText}`);
 				}
@@ -82,13 +81,12 @@ export default function ChecklistPencairan() {
 			method: 'PATCH',
 			credentials: 'include',
 			headers: {
-				'Accept': 'application/json',
-				'Content-Type': 'application/json'
+				'Accept': 'application/json'
 			},
 			body: JSON.stringify(body)
 		})
 			.then(res => {
-				if (!res.ok && (res.status == StatusCodes.UNAUTHORIZED || res.status == StatusCodes.FORBIDDEN)) {
+				if (!res.ok && (res.status === StatusCodes.UNAUTHORIZED || res.status === StatusCodes.FORBIDDEN)) {
 					handleLogOut();
 					throw new Error(`${res.status}::${res.statusText}`);
 				}

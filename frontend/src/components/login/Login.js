@@ -20,8 +20,7 @@ export default function Login() {
 			method: 'POST',
 			credentials: 'include',
 			headers: {
-				'Accept': 'application/json',
-				'Content-Type': 'application/json'
+				'Accept': 'application/json'
 			},
 			body: JSON.stringify(body)
 		})
@@ -32,8 +31,8 @@ export default function Login() {
 					return
 				}
 				Swal.fire({ icon: 'success', title: 'Login Berhasil', showConfirmButton: false, timer: 1500 });
-				const token = json.data?.token;
-				dispatch({ type: 'set', payload: { token } });
+				const payload = { name: json.data?.name }
+				dispatch({ type: 'login', payload });
 			})
 			.catch(err => console.error(err));
 	};

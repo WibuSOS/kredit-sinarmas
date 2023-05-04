@@ -11,7 +11,7 @@ import Col from 'react-bootstrap/Col';
 import Pagination, { bootstrap5PaginationPreset } from 'react-responsive-pagination';
 
 export default function DrawdownReport() {
-	const { state, dispatch } = useStore();
+	const { dispatch } = useStore();
 	const handleLogOut = () => dispatch({ type: 'logout' });
 	const [records, setRecords] = useState([]);
 	const [countRecord, setCountRecord] = useState(0);
@@ -44,12 +44,11 @@ export default function DrawdownReport() {
 			method: 'GET',
 			credentials: 'include',
 			headers: {
-				'Accept': 'application/json',
-				'Content-Type': 'application/json',
+				'Accept': 'application/json'
 			},
 		})
 			.then(res => {
-				if (!res.ok && (res.status == StatusCodes.UNAUTHORIZED || res.status == StatusCodes.FORBIDDEN)) {
+				if (!res.ok && (res.status === StatusCodes.UNAUTHORIZED || res.status === StatusCodes.FORBIDDEN)) {
 					handleLogOut();
 					throw new Error(`${res.status}::${res.statusText}`);
 				}
